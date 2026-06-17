@@ -3,300 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KING Budget - Ultimate Edition</title>
+    <title>KING Budget - Strategic Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --bg: #0f1216;
-            --card: #1c2128;
-            --green: #00e676;
-            --red: #ff5252;
-            --orange: #ffd740;
-            --blue: #448aff;
-            --text: #ffffff;
-        }
-        body { 
-            font-family: 'system-ui', '-apple-system', sans-serif; 
-            background: var(--bg); color: var(--text); 
-            margin: 0; padding: 10px; line-height: 1.5;
-        }
-        .container { max-width: 500px; margin: auto; }
+        :root { --bg: #0f1216; --card: #1c2128; --green: #00e676; --red: #ff5252; --orange: #ffd740; --blue: #448aff; --text: #ffffff; }
+        body { font-family: 'system-ui', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
+        .container { max-width: 600px; margin: auto; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-bottom: 15px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center; }
+        .val { font-size: 1.1rem; font-weight: bold; display: block; }
+        .label { font-size: 0.75rem; color: #8b949e; }
         
-        /* Stats Cards */
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .stat-card { 
-            background: var(--card); padding: 15px; border-radius: 18px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center;
-        }
-        .stat-val { font-size: 1.3rem; font-weight: bold; display: block; }
-        .stat-label { font-size: 0.8rem; color: #8b949e; }
-
-        /* Health Bar */
-        .health-container { background: var(--card); padding: 15px; border-radius: 18px; margin-bottom: 15px; }
-        .progress-bg { background: #30363d; height: 12px; border-radius: 6px; overflow: hidden; margin: 10px 0; }
-        #progress-fill { height: 100%; width: 0%; transition: 0.5s; }
+        input, select, button { padding: 12px; margin: 5px 0; width: 100%; border-radius: 10px; border: 1px solid #30363d; background: #21262d; color: white; box-sizing: border-box; }
+        .btn-main { background: var(--blue); border: none; font-weight: bold; cursor: pointer; }
         
-        /* Inputs */
-        input, select, button { 
-            padding: 14px; margin: 5px 0; width: 100%; border-radius: 12px; 
-            border: 1px solid #30363d; background: #21262d; color: white; box-sizing: border-box; font-size: 1rem;
-        }
-        .btn-main { background: var(--blue); border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.98); }
+        .nav-months { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: var(--card); border-radius: 12px; padding: 5px; }
+        .nav-btn { width: auto; padding: 5px 20px; background: #30363d; margin: 0; }
 
-        /* List Items */
-        .item-card { 
-            background: var(--card); margin-bottom: 8px; padding: 12px; 
-            border-radius: 14px; display: flex; justify-content: space-between; align-items: center;
-            border-right: 5px solid transparent;
-        }
-        .item-inc { border-right-color: var(--green); }
-        .item-exp { border-right-color: var(--red); }
-        .item-rec { border-right-color: var(--orange); }
-
-        /* Calculator */
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-        .calc-btn { background: #30363d; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; font-weight: bold; }
-        .calc-display { background: #000; color: var(--green); text-align: left; font-family: monospace; font-size: 1.4rem; padding: 10px; border-radius: 8px; margin-bottom: 5px; }
-
-        .section-header { text-align: right; margin: 20px 5px 10px; font-weight: bold; color: var(--blue); }
-        canvas { background: #fff; border-radius: 18px; padding: 10px; margin: 15px 0; }
+        .category-group { background: var(--card); border-radius: 12px; margin-bottom: 8px; overflow: hidden; border: 1px solid #333; }
+        .category-header { padding: 12px; display: flex; justify-content: space-between; cursor: pointer; background: rgba(255,255,255,0.05); }
+        .category-content { display: none; padding: 10px; border-top: 1px solid #333; font-size: 0.9rem; }
+        
+        .day-summary { background: rgba(68, 138, 255, 0.1); padding: 10px; border-radius: 10px; margin: 10px 0; border-right: 4px solid var(--blue); text-align: right; }
+        .badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 5px; vertical-align: middle; }
+        .badge-fixed { background: var(--orange); color: black; }
+        .badge-var { background: var(--blue); color: white; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2 style="text-align:center; letter-spacing: 1px;">👑 KING BUDGET PRO</h2>
-
-    <div id="lockScreen" class="stat-card">
-        <input type="password" id="passInput" placeholder="סיסמה">
-        <button class="btn-main" onclick="unlock()">כניסה</button>
+<div class="container" id="app">
+    <div class="nav-months">
+        <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
+        <h3 id="monthTitle">ינואר 2024</h3>
+        <button class="nav-btn" onclick="changeMonth(1)">▶</button>
     </div>
 
-    <div id="app" style="display:none;">
-        
-        <div class="dashboard">
-            <div class="stat-card" style="grid-column: span 2;">
-                <span class="stat-label">יתרה פנויה לשימוש</span>
-                <span id="netBalance" class="stat-val" style="font-size: 2.2rem;">₪0</span>
+    <div class="stat-card">
+        <div class="grid-3">
+            <div><span class="label">הכנסות</span><span id="sumInc" class="val" style="color:var(--green)">0</span></div>
+            <div><span class="label">הוצאות שוטפות</span><span id="sumVar" class="val" style="color:var(--red)">0</span></div>
+            <div><span class="label">קבועות החודש</span><span id="sumFixed" class="val" style="color:var(--orange)">0</span></div>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+        <div class="grid-3">
+            <div style="grid-column: span 2; text-align: right;">
+                <span class="label">סה"כ הוצאות (כללי)</span>
+                <span id="sumTotalExp" class="val">0</span>
             </div>
-            <div class="stat-card">
-                <span class="stat-label">הכנסות החודש</span>
-                <span id="totalIncome" class="stat-val" style="color: var(--green);">₪0</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">הוצאות + קבועות</span>
-                <span id="totalOut" class="stat-val" style="color: var(--red);">₪0</span>
+            <div>
+                <span class="label">יתרה נטו</span>
+                <span id="netBalance" class="val" style="font-size:1.4rem;">0</span>
             </div>
         </div>
-
-        <div class="health-container">
-            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
-                <span>מצב תקציב</span>
-                <span id="healthStatus">מצוין</span>
-            </div>
-            <div class="progress-bg">
-                <div id="progress-fill"></div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <input type="text" id="desc" placeholder="מה קנית / מאיפה הכסף?">
-            <div style="display:flex; gap:5px;">
-                <input type="number" id="amount" placeholder="סכום">
-                <input type="date" id="datePicker">
-            </div>
-            <select id="type" onchange="toggleRecurring()">
-                <option value="expense">📉 הוצאה רגילה</option>
-                <option value="income">📈 הכנסה</option>
-                <option value="recurring">⏳ חיוב חודשי קבוע</option>
-            </select>
-            <input type="number" id="billingDay" placeholder="יום בחודש לחיוב (1-31)" style="display:none;">
-            <button class="btn-main" onclick="addEntry()" style="background:var(--green); color:black;">הוסף למערכת</button>
-        </div>
-
-        <div class="section-header" onclick="toggleCalc()" style="cursor:pointer;">🧮 מחשבון מהיר (לחץ לפתיחה)</div>
-        <div id="calcWrapper" style="display:none;" class="stat-card">
-            <div id="calcDisplay" class="calc-display">0</div>
-            <div class="calc-grid">
-                <div class="calc-btn" onclick="calcInput('7')">7</div>
-                <div class="calc-btn" onclick="calcInput('8')">8</div>
-                <div class="calc-btn" onclick="calcInput('9')">9</div>
-                <div class="calc-btn" onclick="calcInput('/')">/</div>
-                <div class="calc-btn" onclick="calcInput('4')">4</div>
-                <div class="calc-btn" onclick="calcInput('5')">5</div>
-                <div class="calc-btn" onclick="calcInput('6')">6</div>
-                <div class="calc-btn" onclick="calcInput('*')">*</div>
-                <div class="calc-btn" onclick="calcInput('1')">1</div>
-                <div class="calc-btn" onclick="calcInput('2')">2</div>
-                <div class="calc-btn" onclick="calcInput('3')">3</div>
-                <div class="calc-btn" onclick="calcInput('-')">-</div>
-                <div class="calc-btn" onclick="calcClear()">C</div>
-                <div class="calc-btn" onclick="calcInput('0')">0</div>
-                <div class="calc-btn" onclick="calcEval()" style="background:var(--blue)">=</div>
-                <div class="calc-btn" onclick="calcInput('+')">+</div>
-            </div>
-        </div>
-
-        <canvas id="mainChart"></canvas>
-
-        <div class="section-header">📋 תזרים הכנסות (יומי)</div>
-        <div id="incomeTimeline"></div>
-
-        <div class="section-header">💳 חיובים קבועים שיורדים החודש</div>
-        <div id="billingList"></div>
-
-        <button onclick="exportCSV()" style="margin-top:30px; background:#30363d; border:none;">📥 ייצוא קובץ אקסל (CSV)</button>
-        <button onclick="resetAll()" style="background:none; color:var(--red); border:none; font-size:0.8rem;">מחיקת כל הנתונים</button>
     </div>
+
+    <div class="stat-card">
+        <input type="text" id="desc" placeholder="תיאור (שכירות, סופר...)">
+        <div style="display:flex; gap:5px;">
+            <input type="number" id="amount" placeholder="סכום">
+            <input type="date" id="datePicker">
+        </div>
+        <select id="type" onchange="toggleInputs()">
+            <option value="variable">📉 הוצאה רגילה</option>
+            <option value="fixed">⏳ הוצאה קבועה (הוראת קבע)</option>
+            <option value="income">📈 הכנסה</option>
+        </select>
+        <div id="fixedOptions" style="display:none; border: 1px solid var(--orange); padding: 10px; border-radius: 10px; margin: 5px 0;">
+            <small>תאריך סיום חיוב (אופציונלי):</small>
+            <input type="date" id="endDate">
+        </div>
+        <button class="btn-main" onclick="addEntry()">הוסף תנועה</button>
+    </div>
+
+    <div id="dayAnalysis" class="day-summary" style="display:none;">
+        <strong>סיכום ליום שנבחר:</strong>
+        <div id="dayDetails"></div>
+    </div>
+
+    <canvas id="mainChart" style="background:#fff; border-radius:18px; margin-bottom:15px;"></canvas>
+
+    <div id="categoryLists"></div>
+
+    <button onclick="exportCSV()" style="margin-top:20px; opacity:0.6;">📥 ייצוא נתונים</button>
 </div>
 
 <script>
-    let entries = JSON.parse(localStorage.getItem("king_final_v1")) || [];
+    let entries = JSON.parse(localStorage.getItem("king_strategic_v1")) || [];
+    let viewDate = new Date();
+    viewDate.setDate(1); // Start of current month
     let chart;
+
     document.getElementById('datePicker').valueAsDate = new Date();
 
-    function unlock() {
-        if(document.getElementById("passInput").value === "1234") {
-            document.getElementById("lockScreen").style.display = "none";
-            document.getElementById("app").style.display = "block";
-            render();
-        } else { alert("סיסמה שגויה"); }
+    function toggleInputs() {
+        document.getElementById('fixedOptions').style.display = 
+            document.getElementById('type').value === 'fixed' ? 'block' : 'none';
     }
 
-    function toggleRecurring() {
-        document.getElementById("billingDay").style.display = 
-            document.getElementById("type").value === 'recurring' ? 'block' : 'none';
+    function changeMonth(diff) {
+        viewDate.setMonth(viewDate.getMonth() + diff);
+        render();
     }
 
     function addEntry() {
-        const desc = document.getElementById("desc").value;
-        const amount = parseFloat(document.getElementById("amount").value);
-        const type = document.getElementById("type").value;
-        const date = document.getElementById("datePicker").value;
-        const billingDay = document.getElementById("billingDay").value;
+        const desc = document.getElementById('desc').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+        const type = document.getElementById('type').value;
+        const date = document.getElementById('datePicker').value;
+        const endDate = document.getElementById('endDate').value;
 
         if(!desc || !amount) return;
 
-        entries.push({ id: Date.now(), desc, amount, type, date, billingDay });
-        localStorage.setItem("king_final_v1", JSON.stringify(entries));
+        entries.push({ id: Date.now(), desc, amount, type, date, endDate: endDate || null });
+        localStorage.setItem("king_strategic_v1", JSON.stringify(entries));
         render();
-        document.getElementById("desc").value = "";
-        document.getElementById("amount").value = "";
+        document.getElementById('desc').value = "";
+        document.getElementById('amount').value = "";
     }
 
     function render() {
-        const curMonth = new Date().getMonth();
-        const incomeList = document.getElementById("incomeTimeline");
-        const billingList = document.getElementById("billingList");
-        incomeList.innerHTML = ""; billingList.innerHTML = "";
+        const m = viewDate.getMonth();
+        const y = viewDate.getFullYear();
+        document.getElementById('monthTitle').innerText = viewDate.toLocaleString('he-IL', { month: 'long', year: 'numeric' });
 
-        let incTotal = 0, expTotal = 0, recTotal = 0;
+        let inc = 0, varExp = 0, fixExp = 0;
+        const cats = { "הכנסות": [], "הוצאות רגילות": [], "הוצאות קבועות": [] };
+        const dayMap = {};
 
-        // Grouping and Totals
         entries.forEach(item => {
-            const itemMonth = new Date(item.date).getMonth();
-            if(item.type === 'income' && itemMonth === curMonth) {
-                incTotal += item.amount;
-                incomeList.innerHTML += createItemHTML(item, 'item-inc', '➕');
-            } else if(item.type === 'expense' && itemMonth === curMonth) {
-                expTotal += item.amount;
-            } else if(item.type === 'recurring') {
-                recTotal += item.amount;
-                billingList.innerHTML += createItemHTML(item, 'item-rec', '📅 יום ' + item.billingDay);
+            const d = new Date(item.date);
+            const isRecurring = item.type === 'fixed';
+            const endD = item.endDate ? new Date(item.endDate) : null;
+
+            // Logic to check if entry belongs to the viewed month
+            let active = false;
+            if (isRecurring) {
+                // Fixed cost is active if started before/on this month AND (no end date OR ends after/on this month)
+                const startOfView = new Date(y, m, 1);
+                const startOfItem = new Date(d.getFullYear(), d.getMonth(), 1);
+                if (startOfItem <= startOfView) {
+                    if (!endD || endD >= startOfView) active = true;
+                }
+            } else {
+                if (d.getMonth() === m && d.getFullYear() === y) active = true;
+            }
+
+            if (active) {
+                if (item.type === 'income') { inc += item.amount; cats["הכנסות"].push(item); }
+                else if (item.type === 'fixed') { fixExp += item.amount; cats["הוצאות קבועות"].push(item); }
+                else { varExp += item.amount; cats["הוצאות רגילות"].push(item); }
+
+                // Group by day for day analysis
+                const dayKey = item.date;
+                if (!dayMap[dayKey]) dayMap[dayKey] = 0;
+                dayMap[dayKey] += (item.type === 'income' ? item.amount : -item.amount);
             }
         });
 
-        // Update UI
-        const totalOut = expTotal + recTotal;
-        const balance = incTotal - totalOut;
-        
-        document.getElementById("totalIncome").innerText = "₪" + incTotal.toLocaleString();
-        document.getElementById("totalOut").innerText = "₪" + totalOut.toLocaleString();
-        document.getElementById("netBalance").innerText = "₪" + balance.toLocaleString();
-        document.getElementById("netBalance").style.color = balance >= 0 ? "var(--green)" : "var(--red)";
+        // Update Dashboard
+        document.getElementById('sumInc').innerText = "₪" + inc.toLocaleString();
+        document.getElementById('sumVar').innerText = "₪" + varExp.toLocaleString();
+        document.getElementById('sumFixed').innerText = "₪" + fixExp.toLocaleString();
+        document.getElementById('sumTotalExp').innerText = "₪" + (varExp + fixExp).toLocaleString();
+        const net = inc - varExp - fixExp;
+        document.getElementById('netBalance').innerText = "₪" + net.toLocaleString();
+        document.getElementById('netBalance').style.color = net >= 0 ? "var(--green)" : "var(--red)";
 
-        updateHealthMeter(incTotal, totalOut);
-        updateChart(incTotal, totalOut);
+        // Day Analysis Sync
+        const selectedDate = document.getElementById('datePicker').value;
+        const daySum = dayMap[selectedDate] || 0;
+        document.getElementById('dayAnalysis').style.display = "block";
+        document.getElementById('dayDetails').innerText = `${selectedDate}: מאזן יומי של ₪${daySum.toLocaleString()}`;
+
+        renderCategories(cats);
+        updateChart(inc, varExp, fixExp);
     }
 
-    function createItemHTML(item, cssClass, icon) {
-        return `
-            <div class="item-card ${cssClass}">
-                <div>
-                    <small style="color:#8b949e;">${item.date}</small><br>
-                    <b>${item.desc}</b>
-                </div>
-                <div style="text-align:left;">
-                    <span style="font-weight:bold;">₪${item.amount.toLocaleString()}</span><br>
-                    <small>${icon}</small>
-                    <span onclick="deleteItem(${item.id})" style="margin-right:10px; cursor:pointer;">🗑️</span>
-                </div>
-            </div>`;
-    }
-
-    function updateHealthMeter(inc, out) {
-        const fill = document.getElementById("progress-fill");
-        const status = document.getElementById("healthStatus");
-        const percent = inc > 0 ? (out / inc) * 100 : (out > 0 ? 100 : 0);
+    function renderCategories(cats) {
+        const container = document.getElementById('categoryLists');
+        container.innerHTML = "";
         
-        fill.style.width = Math.min(percent, 100) + "%";
-        
-        if(percent < 50) { 
-            fill.style.background = "var(--green)"; status.innerText = "מצב מצוין ✅"; 
-        } else if(percent < 80) { 
-            fill.style.background = "var(--orange)"; status.innerText = "שים לב להוצאות ⚠️"; 
-        } else { 
-            fill.style.background = "var(--red)"; status.innerText = "חריגה בתקציב! 🚨"; 
+        for (let name in cats) {
+            if (cats[name].length === 0) continue;
+            const sum = cats[name].reduce((a, b) => a + b.amount, 0);
+            
+            const html = `
+                <div class="category-group">
+                    <div class="category-header" onclick="toggleCat(this)">
+                        <span>${name} (${cats[name].length})</span>
+                        <b>₪${sum.toLocaleString()}</b>
+                    </div>
+                    <div class="category-content">
+                        ${cats[name].map(i => `
+                            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #333;">
+                                <span>${i.desc} <small style="color:#8b949e">${i.date}</small></span>
+                                <span>₪${i.amount} <button onclick="deleteItem(${i.id})" style="width:auto; padding:2px; margin-right:10px;">🗑️</button></span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            container.innerHTML += html;
         }
     }
 
-    function updateChart(inc, out) {
+    function toggleCat(el) {
+        const content = el.nextElementSibling;
+        content.style.display = content.style.display === "block" ? "none" : "block";
+    }
+
+    function updateChart(inc, vExp, fExp) {
         const ctx = document.getElementById('mainChart').getContext('2d');
         if(chart) chart.destroy();
         chart = new Chart(ctx, {
-            type: 'doughnut',
+            type: 'pie',
             data: {
-                labels: ['הכנסות', 'הוצאות'],
-                datasets: [{ data: [inc, out], backgroundColor: ['#00e676', '#ff5252'], borderWidth: 0 }]
+                labels: ['הכנסות', 'הוצאות שוטפות', 'הוצאות קבועות'],
+                datasets: [{ data: [inc, vExp, fExp], backgroundColor: ['#00e676', '#448aff', '#ffd740'], borderWidth: 0 }]
             },
-            options: { plugins: { legend: { position: 'bottom' } }, cutout: '70%' }
+            options: { plugins: { legend: { position: 'bottom' } } }
         });
-    }
-
-    // Calculator Logic
-    let calcVal = "";
-    function toggleCalc() {
-        const w = document.getElementById("calcWrapper");
-        w.style.display = w.style.display === "none" ? "block" : "none";
-    }
-    function calcInput(v) { calcVal += v; document.getElementById("calcDisplay").innerText = calcVal; }
-    function calcClear() { calcVal = ""; document.getElementById("calcDisplay").innerText = "0"; }
-    function calcEval() {
-        try {
-            calcVal = eval(calcVal).toString();
-            document.getElementById("calcDisplay").innerText = calcVal;
-            document.getElementById("amount").value = calcVal;
-        } catch { alert("שגיאה"); calcClear(); }
     }
 
     function deleteItem(id) {
         entries = entries.filter(e => e.id !== id);
-        localStorage.setItem("king_final_v1", JSON.stringify(entries));
+        localStorage.setItem("king_strategic_v1", JSON.stringify(entries));
         render();
     }
 
-    function resetAll() { if(confirm("למחוק הכל?")) { localStorage.clear(); location.reload(); } }
-
     function exportCSV() {
-        let csv = "Date,Desc,Type,Amount\n";
-        entries.forEach(e => csv += `${e.date},${e.desc},${e.type},${e.amount}\n`);
+        let csv = "Date,Desc,Type,Amount,EndDate\n";
+        entries.forEach(e => csv += `${e.date},${e.desc},${e.type},${e.amount},${e.endDate||''}\n`);
         const blob = new Blob([csv], {type: 'text/csv'});
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = 'king_budget.csv'; a.click();
+        a.href = URL.createObjectURL(blob); a.download = 'budget_king.csv'; a.click();
     }
+
+    render(); // Initial load
 </script>
 
 </body>
 </html>
+
