@@ -69,8 +69,10 @@
 </head>
 <body>
 
-<button class="hamburger-btn" id="menuToggleBtn" onclick="toggleSidebar()">☰</button>
+<!-- מוסתר כברירת מחדל באמצעות style="display: none;" -->
+<button class="hamburger-btn" id="menuToggleBtn" onclick="toggleSidebar()" style="display: none;">☰</button>
 
+<!-- תפריט המבורגר צדדי -->
 <div class="sidebar" id="sidebarMenu">
     <div>
         <h3 style="text-align: center; margin-bottom: 10px;">👑 KING Menu</h3>
@@ -98,6 +100,7 @@
 <div class="container">
     <h2 id="mainTitle" style="text-align:center; letter-spacing: 1px; margin-bottom: 20px;">👑 Kobi Hasidi - ניהול פיננסי KING</h2>
 
+    <!-- מסך נעילה והתחברות -->
     <div id="lockScreen" class="stat-card" style="text-align: center;">
         <h3>מערכת מאובטחת - סנכרון ענן</h3>
         <p id="loadingStatus" style="font-size:0.9rem; color:var(--orange);">מתחבר לשרת הענן...</p>
@@ -108,12 +111,14 @@
         </div>
     </div>
 
+    <!-- האפליקציה הראשית -->
     <div id="app" style="display:none;">
         <div style="display:flex; justify-content:space-between; font-size: 0.8rem; margin-bottom: 5px;">
             <span style="color: var(--orange)">משתמש: <span id="userRoleBadge" style="font-weight:bold;"></span></span>
             <button onclick="logout()" style="width:auto; padding:2px 8px; margin:0; background:#333; font-size:0.75rem; color: white;">התנתק ✖</button>
         </div>
 
+        <!-- תצוגה 1: דאשבורד ראשי -->
         <div id="view-dashboard" class="app-view active">
             <div class="nav-months">
                 <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
@@ -140,6 +145,7 @@
                 </div>
             </div>
 
+            <!-- הגרף המובנה המשודרג -->
             <div class="stat-card">
                 <div style="display: flex; gap: 5px; margin-bottom: 8px;">
                     <select id="chartTypeSelect" onchange="render()" style="padding: 5px; font-size: 0.8rem;">
@@ -150,6 +156,7 @@
                 <canvas id="mainChart" style="background:#fff; border-radius:18px;"></canvas>
             </div>
 
+            <!-- טופס הוספת תנועה חודשית קלאסית -->
             <div class="stat-card" id="inputFormCard" style="display:none;">
                 <h4 id="formTitle" style="margin: 0 0 10px 0; color: var(--blue);">הוספת תנועה חדשה</h4>
                 <input type="text" id="desc" placeholder="תיאור (שכירות, סופר...)">
@@ -158,6 +165,7 @@
                     <input type="date" id="datePicker" onchange="render()">
                 </div>
                 
+                <!-- שיוך לקטגוריה דינמית -->
                 <select id="entryCategorySelect">
                     <option value="כללי">בחר קטגוריה (אופציונלי)</option>
                 </select>
@@ -183,16 +191,19 @@
             <div id="categoryLists"></div>
         </div>
 
+        <!-- תצוגה 2: הוצאות חודשיות מופרדות -->
         <div id="view-monthly-exp" class="app-view">
             <h3>📉 פירוט הוצאות חודשיות</h3>
             <div id="monthlyExpensesList"></div>
         </div>
 
+        <!-- תצוגה 3: הכנסות חודשיות מופרדות -->
         <div id="view-monthly-inc" class="app-view">
             <h3>📈 פירוט הכנסות חודשיות</h3>
             <div id="monthlyIncomesList"></div>
         </div>
 
+        <!-- תצוגה 4: הוצאות יומיות עם לוח ימים -->
         <div id="view-daily-exp" class="app-view">
             <h3>📅 פילוח הוצאות לפי ימים</h3>
             <input type="date" id="dailyViewDatePicker" onchange="loadDailyViewData()">
@@ -203,6 +214,7 @@
             <div id="dailyEntriesContainer"></div>
         </div>
 
+        <!-- תצוגה 5: מחשבון רווח יומי עצמאי ומתוחכם -->
         <div id="view-daily-profit-calc" class="app-view">
             <h3>🧮 מחשבון רווח יומי עצמאי</h3>
             <p style="font-size: 0.8rem; opacity: 0.8;">מחשבון מבודד לחישוב רווח יומי נטו. ניתן לשייך הוצאה להכנסה ספציפית, ובסיום להזרים את השורה התחתונה ישירות לתקציב החודשי.</p>
@@ -237,6 +249,7 @@
             </div>
         </div>
 
+        <!-- תצוגה 6: ניהול קטגוריות דינמיות -->
         <div id="view-categories-mgmt" class="app-view">
             <h3>🏷️ ניהול קטגוריות מותאמות אישית</h3>
             <div class="stat-card">
@@ -247,12 +260,14 @@
             <div id="customCategoriesList"></div>
         </div>
 
+        <!-- תצוגה 7: חיפוש חופשי לפי מילים -->
         <div id="view-search-view" class="app-view">
             <h3>🔍 מנגנון חיפוש חופשי</h3>
             <input type="text" id="searchInput" placeholder="הקלד מילת חיפוש (סופר, דלק, תיקון...)" oninput="performSearch()">
             <div id="searchResults" style="margin-top: 15px;"></div>
         </div>
 
+        <!-- תצוגה 8: סיכום שנתי YTD -->
         <div id="view-yearly-summary" class="app-view">
             <h3>📊 סיכום שנתי מקיף (YTD)</h3>
             <div class="stat-card" style="text-align: center;">
@@ -267,6 +282,7 @@
             <div id="yearlyCategoryBreakdown"></div>
         </div>
 
+        <!-- פאנל ניהול המשתמשים הישן והמאובטח -->
         <div id="adminPanel" style="display:none; margin-top:15px; border-top:1px solid var(--border); padding-top:15px;">
             <button onclick="toggleSection('userManagerSection')" style="background:var(--card); border:1px solid var(--orange); color:var(--orange);">⚙️ ניהול משתמשים והרשאות</button>
             <div id="userManagerSection" class="stat-card" style="display:none; margin-top:10px; border:1px solid #444;">
@@ -290,6 +306,7 @@
     </div>
 </div>
 
+<!-- חלונית פופאפ לפירוט לחיצות (Drill-down) -->
 <div class="modal" id="drillDownModal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal()">❌</span>
@@ -327,14 +344,12 @@
     document.getElementById('calcDatePicker').valueAsDate = new Date();
 
     async function initSystem() {
-        // טעינת קטגוריות
         if(localStorage.getItem(CATS_KEY)) {
             customCategories = JSON.parse(localStorage.getItem(CATS_KEY));
         } else {
             localStorage.setItem(CATS_KEY, JSON.stringify(customCategories));
         }
         
-        // טעינת מחשבון יומי
         dailyCalcEntries = JSON.parse(localStorage.getItem(DAILY_CALC_KEY)) || [];
 
         localUsers = JSON.parse(localStorage.getItem(USERS_KEY)) || [
@@ -377,6 +392,10 @@
         
         document.getElementById("lockScreen").style.display = "none";
         document.getElementById("app").style.display = "block";
+        
+        // חשיפת כפתור ההמבורגר לאחר התחברות מוצלחת
+        document.getElementById("menuToggleBtn").style.display = "block";
+        
         document.getElementById("userRoleBadge").innerText = currentUser.username + ` (${currentUser.role === 'admin' ? 'מנהל' : 'צופה'})`;
         
         if (currentUser.role === 'admin') {
@@ -397,6 +416,11 @@
         entries = [];
         document.getElementById("app").style.display = "none";
         document.getElementById("lockScreen").style.display = "block";
+        
+        // הסתרה וסגירה של ההמבורגר בזמן התנתקות
+        document.getElementById("menuToggleBtn").style.display = "none";
+        document.getElementById('sidebarMenu').classList.remove('open');
+        
         document.getElementById("userInput").value = "";
         document.getElementById("passInput").value = "";
         resetUserForm();
@@ -448,7 +472,6 @@
         if(viewId === 'yearly-summary') loadYearlySummaryData();
     }
 
-    // הוספה או עדכון של תנועה
     async function addEntry() {
         if (currentUser.role !== 'admin') return;
         const desc = document.getElementById('desc').value.trim();
@@ -554,7 +577,6 @@
         if (noteEl) noteEl.style.display = noteEl.style.display === "block" ? "none" : "block";
     }
 
-    // עדכון קטגוריות בדרופדאון
     function updateCategoryDropdowns() {
         const select = document.getElementById('entryCategorySelect');
         select.innerHTML = '<option value="כללי">בחר קטגוריה (אופציונלי)</option>';
@@ -563,7 +585,6 @@
         });
     }
 
-    // ניהול קטגוריות
     function renderCategoriesManagement() {
         const container = document.getElementById('customCategoriesList');
         container.innerHTML = "";
@@ -597,7 +618,6 @@
         }
     }
 
-    // מנגנון פופאפ (Drill-down) בלחיצה על הדאשבורד
     function openDrillDown(type) {
         const modal = document.getElementById('drillDownModal');
         const title = document.getElementById('modalTitle');
@@ -635,7 +655,6 @@
         document.getElementById('drillDownModal').style.display = "none";
     }
 
-    // חיפוש חופשי
     function performSearch() {
         const query = document.getElementById('searchInput').value.trim().toLowerCase();
         const resultsContainer = document.getElementById('searchResults');
@@ -655,7 +674,6 @@
         `).join('');
     }
 
-    // פילוח תצוגת ימים
     function loadDailyViewData() {
         const targetDate = document.getElementById('dailyViewDatePicker').value;
         const container = document.getElementById('dailyEntriesContainer');
@@ -674,7 +692,6 @@
         `).join('');
     }
 
-    // סיכום שנתי YTD
     function loadYearlySummaryData() {
         const currentYear = new Date().getFullYear();
         document.getElementById('yearlyTitleYear').innerText = `שנת ${currentYear}`;
@@ -689,7 +706,6 @@
         document.getElementById('yearlyTotalNet').innerText = `₪${(inc - exp).toLocaleString()}`;
         document.getElementById('yearlyTotalNet').style.color = (inc - exp) >= 0 ? 'var(--green)' : 'var(--red)';
         
-        // פילוח קטגוריות שנתי
         let catMap = {};
         yearlyEntries.filter(e => e.type !== 'income').forEach(e => {
             let c = e.category || "כללי";
@@ -705,7 +721,6 @@
         `).join('');
     }
 
-    // --- מערכת מחשבון רווח יומי עצמאית ---
     function updateCalcIncomeDropdown() {
         const container = document.getElementById('calcLinkContainer');
         const select = document.getElementById('calcLinkToIncome');
@@ -794,7 +809,6 @@
         let expSum = dayItems.filter(e => e.type === 'expense').reduce((a,b)=>a+b.amount,0);
         let netProfit = incSum - expSum;
         
-        // יצירת פקודת הזרמה לתקציב הכללי
         document.getElementById('desc').value = `רווח יומי מזוקק מהמחשבון`;
         document.getElementById('amount').value = Math.abs(netProfit);
         document.getElementById('datePicker').value = targetDate;
@@ -806,8 +820,6 @@
         alert("הנתונים הועברו לטופס הראשי! לחץ על 'הוסף תנועה' כדי לאשר סופית את העלאה לענן.");
     }
 
-    // --- סיום פיצ'ר מחשבון יומי ---
-
     function render() {
         const m = viewDate.getMonth();
         const y = viewDate.getFullYear();
@@ -817,7 +829,6 @@
         const cats = { "הכנסות": [], "הוצאות רגילות": [], "הוצאות קבועות": [] };
         const dayMap = {};
 
-        // מיון הוצאות קבועות לפי יום החיוב בחודש (deductionDate)
         let sortedEntries = [...entries].sort((a,b) => {
             let dayA = a.deductionDate ? new Date(a.deductionDate).getDate() : 0;
             let dayB = b.deductionDate ? new Date(b.deductionDate).getDate() : 0;
@@ -860,10 +871,7 @@
         document.getElementById('netBalance').style.color = net >= 0 ? "var(--green)" : "var(--red)";
 
         renderCategories(cats);
-        
-        // יצירת רשימות מופרדות לתצוגות היעודיות בהמבורגר
         renderSeparateViews(cats);
-
         updateChart(inc, varExp, fixExp);
     }
 
@@ -940,7 +948,6 @@
         el.style.display = el.style.display === "block" ? "none" : "block";
     }
 
-    // גרף דינמי ומתקדם
     function updateChart(inc, vExp, fExp) {
         const ctx = document.getElementById('mainChart').getContext('2d');
         if(chart) chart.destroy();
@@ -975,13 +982,11 @@
         }
     }
 
-    // שינוי עיצוב כהה / בהיר
     function toggleTheme() {
         document.body.classList.toggle('light-theme');
         render();
     }
 
-    // שינוי שפה מובנה
     function toggleLanguage() {
         currentLang = currentLang === "he" ? "en" : "he";
         if(currentLang === "en") {
@@ -995,7 +1000,6 @@
         }
     }
 
-    // --- מערכת התראות דחיפה חכמה וסימולטור מובנה ---
     function requestNotificationPermission() {
         if ("Notification" in window) {
             Notification.requestPermission();
@@ -1003,15 +1007,13 @@
     }
 
     function setupNotificationScheduler() {
-        // בדיקת זמנים בכל דקה
         setInterval(() => {
             if(!document.getElementById('notifyToggle').checked) return;
             
             const now = new Date();
-            const timeStr = now.toTimeString().substring(0, 5); // למשל "08:00"
+            const timeStr = now.toTimeString().substring(0, 5); 
             const dayOfMonth = now.getDate();
             
-            // התראות יומיומיות
             if(timeStr === "08:00") {
                 triggerPushNotification("בוקר טוב קובי ☀️", "לא לשכוח להכניס נתונים של אתמול!");
             }
@@ -1022,7 +1024,6 @@
                 triggerPushNotification("לילה טוב קובי 🌙", "זמן קצר לפני שינה - אל תשכח להזין נתונים!");
             }
             
-            // התראת 5 ימים לפני ה-10 לחודש (כלומר בין ה-5 ל-9 לחודש) בשעה 10:00 בבוקר
             if(dayOfMonth >= 5 && dayOfMonth < 10 && timeStr === "10:00") {
                 calculateAndNotifyMissingBudget();
             }
@@ -1045,7 +1046,7 @@
         
         let diff = exp - inc;
         if(diff > 0) {
-            triggerPushNotification("זמן ההורדה מתקרב! ⚠️", `קובי חסרים לך ${diff.toLocaleString()} ש"ש לסגור את החודש! קטן עליך`);
+            triggerPushNotification("זמן ההורדה מתקרב! ⚠️", `קובי חסרים לך ${diff.toLocaleString()} ש"ח לסגור את החודש! קטן עליך`);
         } else {
             triggerPushNotification("הורדות ה-10 לחודש מתקרבות!", "קובי, החודש אתה מכוסה ומאוזן לחלוטין. מלך!");
         }
@@ -1059,7 +1060,6 @@
         }
     }
 
-    // ניהול משתמשים קלאסי ומאובטח מהקוד המקורי
     function loadUsersList() {
         const listDiv = document.getElementById("usersCloudList");
         listDiv.innerHTML = "";
