@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👑 Kobi hasidi ניהול הוצאות והכנסות</title>
-    <!-- ספריות חיצוניות: Supabase, Chart.js לעיבוד גרפים, ופונטים נקיים -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -34,10 +33,10 @@
         body { background-color: var(--bg-color); color: var(--text-color); transition: all 0.3s ease; padding-bottom: 60px; }
         
         /* סרגל עליון */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; border-bottom: 1px solid var(--border-color); sticky: top; top: 0; z-index: 100; }
-        .menu-btn { font-size: 28px; cursor: pointer; background: none; border: none; color: var(--text-color); }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+        .menu-btn { font-size: 28px; cursor: pointer; background: none; border: none; color: var(--text-color); display: none; } /* מוסתר כברירת מחדל במסך כניסה */
         
-        /* תפריט המבורגר צידי */
+        /* תפריט המבורגר צידי מורחב */
         .sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: var(--card-bg); box-shadow: -5px 0 15px rgba(0,0,0,0.5); transition: right 0.3s ease; z-index: 1000; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
         .sidebar.open { right: 0; }
         .sidebar-menu { list-style: none; margin-top: 20px; }
@@ -47,7 +46,7 @@
 
         /* כרטיסיות ותוכן */
         .container { padding: 15px; max-width: 800px; margin: 0 auto; }
-        .card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border-color); }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border-color); }
         .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .dash-item { text-align: center; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .dash-item.income { background: rgba(76, 175, 80, 0.15); color: #4caf50; }
@@ -69,7 +68,7 @@
         .daily-item-row { display: flex; gap: 5px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; margin: 5px 0; font-size: 13px; align-items: center; }
 
         /* התראות פנימיות באפליקציה */
-        .notification-banner { background: #ff9800; color: #121212; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; display: none; display: flex; justify-content: space-between; align-items: center; }
+        .notification-banner { background: #ff9800; color: #121212; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; display: none; justify-content: space-between; align-items: center; }
 
         .view-section { display: none; }
         .view-section.active { display: block; }
@@ -78,22 +77,18 @@
 </head>
 <body data-theme="dark">
 
-    <!-- התראות פופ-אפ פנימיות (מערכת ההתראות של קובי) -->
     <div class="container" style="padding-bottom: 0;">
         <div id="appNotification" class="notification-banner">
-            <span id="notificationText">טוען התראות...</span>
+            <span id="notificationText">אין התראות חדשות</span>
             <button onclick="this.parentElement.style.display='none'" style="width:auto; margin:0; padding:5px 10px; background:rgba(0,0,0,0.2); color:white;">X</button>
         </div>
     </div>
 
-    <!-- סרגל עליון קבוע -->
     <div class="top-bar">
-        <div class="menu-btn" onclick="toggleSidebar()">☰</div>
-        <h2 id="mainTitle" style="font-size: 18px; font-weight: 700;">👑 Kobi hasidi ניהול תקציב</h2>
-        <div style="width: 28px;"></div> <!-- איזון ויזואלי -->
-    </div>
+        <div class="menu-btn" id="menuBtn" onclick="toggleSidebar()">☰</div>
+        <h2 id="mainTitle" style="font-size: 18px; font-weight: 700; margin: 0 auto;">👑 Kobi hasidi ניהול תקציב</h2>
+        <div id="spacerBtn" style="width: 28px;"></div> </div>
 
-    <!-- תפריט המבורגר צידי מורחב -->
     <div id="sidebar" class="sidebar">
         <div>
             <div class="close-sidebar" onclick="toggleSidebar()">✕</div>
@@ -109,7 +104,6 @@
             </ul>
         </div>
         
-        <!-- חלק תחתון קבוע בתוך ההמבורגר - הגדרות ומערכת מערכת -->
         <div>
             <button onclick="openSettingsModal()" style="background:#555; margin-bottom: 5px;">⚙️ הגדרות מערכת</button>
             <button class="btn-danger" onclick="handleLogout()">🚪 התנתק מהמערכת</button>
@@ -117,7 +111,6 @@
     </div>
 
     <div class="container">
-        <!-- מסך התחברות (לוגיקה קיימת ומאובטחת שלא נפגעה) -->
         <div id="authSection" class="card view-section active">
             <h3 style="text-align: center; margin-bottom: 15px;">התחברות למערכת</h3>
             <input type="text" id="loginUser" placeholder="שם משתמש">
@@ -125,7 +118,6 @@
             <button onclick="processLogin()">התחבר</button>
         </div>
 
-        <!-- ================= מסך ראשי (DASHBOARD) ================= -->
         <div id="dashboard" class="view-section">
             <div class="dashboard-grid">
                 <div class="dash-item income" onclick="openDrillDown('income')">הכנסות חודש<br><span id="dashIncome">0 ₪</span></div>
@@ -133,7 +125,6 @@
                 <div class="dash-item net">עו"ש נטו<br><span id="dashNet">0 ₪</span></div>
             </div>
 
-            <!-- טופס הוספת תנועה רגילה מהיר עם שדה תאריך כפול -->
             <div class="card">
                 <h4 style="margin-bottom: 8px;">הוספת תנועה חדשה חודשית/רגילה</h4>
                 <input type="text" id="entryDesc" placeholder="תיאור העסקה (לדוגמה: סופרמרקט)">
@@ -153,7 +144,6 @@
                 <button class="btn-success" onclick="saveNewEntry()">שמור תנועה במערכת 💾</button>
             </div>
 
-            <!-- גרף דינמי משודרג ומורחב -->
             <div class="card">
                 <h4>אנליטיקה וגרפים דינמיים</h4>
                 <div style="display:flex; gap:5px; margin-bottom:10px;">
@@ -167,7 +157,6 @@
             </div>
         </div>
 
-        <!-- ================= מסך הוצאות חודשיות ================= -->
         <div id="monthly-expenses" class="view-section">
             <div class="card">
                 <h3>📉 פירוט הוצאות חודשיות (ממוין לפי ימי הורדה)</h3>
@@ -175,7 +164,6 @@
             </div>
         </div>
 
-        <!-- ================= מסך הכנסות חודשיות ================= -->
         <div id="monthly-incomes" class="view-section">
             <div class="card">
                 <h3>📈 פירוט הכנסות חודשיות</h3>
@@ -183,7 +171,6 @@
             </div>
         </div>
 
-        <!-- ================= מסך הוצאות יומיות ================= -->
         <div id="daily-expenses" class="view-section">
             <div class="card">
                 <h3>📅 הוצאות מחולקות לפי ימים</h3>
@@ -191,16 +178,14 @@
             </div>
         </div>
 
-        <!-- ================= מסך חיפוש לפי מילים ================= -->
         <div id="search-view" class="view-section">
             <div class="card">
                 <h3>🔍 חיפוש חופשי במסד הנתונים</h3>
-                <input type="text" id="searchQuery" oninput="executeSearch()" placeholder="הקלד מילת חיפוש (לדוגמה: דלק, טיפול)...">
+                <input type="text" id="searchQuery" oninput="executeSearch()" placeholder="הקלד מילת חיפוש...">
                 <div id="searchResults" style="margin-top:10px;"></div>
             </div>
         </div>
 
-        <!-- ================= מסך סיכום שנתי ================= -->
         <div id="annual-summary" class="view-section">
             <div class="card">
                 <h3>📅 סיכום נתונים שנתי (מתחילת השנה עד עכשיו)</h3>
@@ -211,7 +196,6 @@
             </div>
         </div>
 
-        <!-- ================= מסך ניהול קטגוריות ================= -->
         <div id="category-manager" class="view-section">
             <div class="card">
                 <h3>🏷️ ניהול קטגוריות דינמיות בענן</h3>
@@ -223,7 +207,6 @@
             </div>
         </div>
 
-        <!-- ================= מסך מחשבון רווח יומי מורכב ומבודד ================= -->
         <div id="advanced-daily-calc" class="view-section">
             <div class="card">
                 <h3>🧮 מחשבון נפרד - חישוב רווח יומי מבודד</h3>
@@ -253,7 +236,6 @@
         </div>
     </div>
 
-    <!-- מודאל: פירוט תנועות (DRILL DOWN) -->
     <div id="drillDownModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -264,7 +246,6 @@
         </div>
     </div>
 
-    <!-- מודאל: הגדרות מערכת מורחב (הגדרות בתוך ההמבורגר) -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -292,14 +273,13 @@
         </div>
     </div>
 
-    <!-- ================= לוגיקת ג'אווה סקריפט מלאה ================= -->
     <script>
-        // חיבור לבסיס הנתונים (החלף את הנתונים כאן בפרטי ה-Supabase שלך)
+        // חיבור לבסיס הנתונים
         const SUPABASE_URL = 'YOUR_SUPABASE_URL';
         const SUPABASE_KEY = 'YOUR_SUPABASE_KEY';
-        const supabase = (SUPABASE_URL !== 'YOUR_SUPABASE_URL') ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+        // שימוש ב-window כדי למנוע קריסה ושגיאות הגדרה בדפדפנים
+        const supabase = (SUPABASE_URL !== 'YOUR_SUPABASE_URL') ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-        // משתני מערכת גלובליים
         let currentUserId = null;
         let currentUserRole = 'viewer'; 
         let globalEntries = [];
@@ -307,14 +287,12 @@
         let tempDailyItems = [];
         let myChartInstance = null;
 
-        // אתחול תאריכים אוטומטיים בדף
-        document.getElementById('entryDate').valueToDate = new Date();
-        document.getElementById('entryDate').value = new Date().toISOString().substring(0, 10);
+        // אתחול תאריכים
+        document.getElementById('entryDate').valueAsDate = new Date();
         document.getElementById('entryChargeDate').value = new Date().toISOString().substring(0, 10);
         document.getElementById('calcTargetDate').value = new Date().toISOString().substring(0, 10);
         document.getElementById('chartCustomDate').value = new Date().toISOString().substring(0, 10);
 
-        // פונקציות ניווט ותפריט המבורגר
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
         }
@@ -323,16 +301,27 @@
             if (!currentUserId && viewId !== 'authSection') return;
             document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            toggleSidebar();
             
-            // רענון נתונים ספציפי לפי מסך
+            // שליטה על נראות כפתור ההמבורגר לפי המסך שבו נמצאים
+            if (viewId === 'authSection') {
+                document.getElementById('menuBtn').style.display = 'none';
+                document.getElementById('spacerBtn').style.display = 'block';
+            } else {
+                document.getElementById('menuBtn').style.display = 'block';
+                document.getElementById('spacerBtn').style.display = 'none';
+            }
+
+            if (document.getElementById('sidebar').classList.contains('open')) {
+                toggleSidebar();
+            }
+            
             if (viewId === 'monthly-expenses') renderMonthlyExpenses();
             if (viewId === 'monthly-incomes') renderMonthlyIncomes();
             if (viewId === 'daily-expenses') renderDailyBreakdown();
             if (viewId === 'annual-summary') calculateAnnualStats();
         }
 
-        // התחברות וניהול משתמשים (נשמר שלם ומסונכרן)
+        // התחברות מסודרת לענן עם טיפול בשגיאות
         async function processLogin() {
             const user = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
@@ -342,36 +331,40 @@
                 return;
             }
 
-            // משיכת פרטי המשתמש לצורך אימות וסנכרון רב-מכשירים
-            const { data, error } = await supabase.from('users_auth').select('*').eq('username', user).single();
-            
-            if (error || !data || data.password !== pass) {
-                alert("שם משתמש או סיסמה שגויים, נסה שנית.");
+            if(!user || !pass) {
+                alert("נא להזין שם משתמש וסיסמה");
                 return;
             }
 
-            currentUserId = data.user_id;
-            currentUserRole = data.role || 'viewer';
-            
-            document.getElementById('authSection').classList.remove('active');
-            document.getElementById('dashboard').classList.add('active');
-            
-            // טעינת מידע ראשוני מהענן
-            await fetchCategories();
-            await refreshDataSync();
-            initRealTimeNotificationEngine();
+            try {
+                const { data, error } = await supabase.from('users_auth').select('*').eq('username', user).single();
+                
+                if (error || !data || data.password !== pass) {
+                    alert("שם משתמש או סיסמה שגויים, נסה שנית.");
+                    return;
+                }
+
+                currentUserId = data.user_id;
+                currentUserRole = data.role || 'viewer';
+                
+                // שינוי תצוגה והצגת כפתור ה-3 פסים רק עכשיו!
+                switchView('dashboard');
+                
+                await fetchCategories();
+                await refreshDataSync();
+                initRealTimeNotificationEngine();
+            } catch(e) {
+                alert("שגיאת התחברות: וודא שנתוני ה-Supabase שלך נכונים.");
+            }
         }
 
         function handleLogout() {
             currentUserId = null;
             currentUserRole = 'viewer';
             globalEntries = [];
-            document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
-            document.getElementById('authSection').classList.add('active');
-            toggleSidebar();
+            switchView('authSection');
         }
 
-        // משיכה וסנכרון של קטגוריות דינמיות מהענן
         async function fetchCategories() {
             if (!supabase) return;
             const { data, error } = await supabase.from('categories').select('*').order('name', { ascending: true });
@@ -386,7 +379,6 @@
             }
         }
 
-        // יצירת קטגוריה חדשה בענן
         async function createNewCategory() {
             if (currentUserRole !== 'admin') { alert("אין לך הרשאת מנהל לביצוע פעולה זו"); return; }
             const name = document.getElementById('newCategoryName').value.trim();
@@ -396,7 +388,6 @@
             await fetchCategories();
         }
 
-        // מחיקת קטגוריה מהענן
         async function deleteCategory(catId) {
             if (currentUserRole !== 'admin') { alert("אין לך הרשאת מנהל לביצוע פעולה זו"); return; }
             if (confirm("האם אתה בטוח שברצונך למחוק קטגוריה זו?")) {
@@ -417,12 +408,10 @@
             });
         }
 
-        // משיכת נתונים מרכזית וסנכרון רב מכשירים בזמן אמת
         async function refreshDataSync() {
             if (!supabase || !currentUserId) return;
             
             let query = supabase.from('king_entries').select('*');
-            // אם המשתמש הוא צופה או רגיל, מציגים לו את המידע המשויך אליו
             if (currentUserRole !== 'admin') {
                 query = query.eq('user_id', currentUserId);
             }
@@ -437,7 +426,7 @@
 
         function calculateDashboardTotals() {
             const now = new Date();
-            const currentMonth = now.toISOString().substring(0, 7); // YYYY-MM
+            const currentMonth = now.toISOString().substring(0, 7);
             
             let inc = 0;
             let exp = 0;
@@ -454,7 +443,6 @@
             document.getElementById('dashNet').innerText = `${(inc - exp).toLocaleString()} ₪`;
         }
 
-        // שמירת תנועה רגילה חדשה במסד הנתונים
         async function saveNewEntry() {
             if (currentUserRole !== 'admin') { alert("הרשאת צפייה בלבד (Viewer) - לא ניתן להוסיף נתונים"); return; }
             
@@ -487,22 +475,17 @@
                 await refreshDataSync();
                 alert("התנועה נשמרה וסונכרנה בהצלחה!");
             } else {
-                alert("שגיאה בסנכרון מול הענן: " + error.message);
+                alert("שגיאה בסנכרון: " + error.message);
             }
         }
 
-        // מסך: פירוט הוצאות חודשיות ממוין לפי ימי הורדה (הורדות קבועות/כרטיסי אשראי)
         function renderMonthlyExpenses() {
             const container = document.getElementById('monthlyExpensesList');
             container.innerHTML = '';
-            
             const now = new Date();
             const currentMonth = now.toISOString().substring(0, 7);
             
-            // סינון להוצאות החודש הנוכחי בלבד
             let expenses = globalEntries.filter(e => e.type === 'expense' && e.date && e.date.substring(0, 7) === currentMonth);
-            
-            // מיון לפי תאריך החיוב בפועל (charge_date)
             expenses.sort((a, b) => new Date(a.charge_date || a.date) - new Date(b.charge_date || b.date));
 
             if (expenses.length === 0) { container.innerHTML = '<p>אין הוצאות רשומות לחודש זה.</p>'; return; }
@@ -520,7 +503,6 @@
             });
         }
 
-        // מסך: פירוט הכנסות חודשיות
         function renderMonthlyIncomes() {
             const container = document.getElementById('monthlyIncomesList');
             container.innerHTML = '';
@@ -542,7 +524,6 @@
             });
         }
 
-        // מסך: הוצאות מחולקות לפי ימים
         function renderDailyBreakdown() {
             const container = document.getElementById('dailyBreakdownList');
             container.innerHTML = '';
@@ -564,7 +545,6 @@
             });
         }
 
-        // מסך: חיפוש חופשי לפי מילים
         function executeSearch() {
             const query = document.getElementById('searchQuery').value.toLowerCase().trim();
             const container = document.getElementById('searchResults');
@@ -593,7 +573,6 @@
             });
         }
 
-        // מסך: חישוב והצגת נתונים שנתיים
         function calculateAnnualStats() {
             const currentYear = new Date().getFullYear().toString();
             let totalIn = 0;
@@ -610,7 +589,6 @@
             document.getElementById('annualTotalExpenses').innerText = `${totalOut.toLocaleString()} ₪`;
         }
 
-        // חלון קופץ פירוט מלא (DRILL DOWN) בלחיצה על הסיכומים במסך הראשי
         function openDrillDown(type) {
             const modal = document.getElementById('drillDownModal');
             const title = document.getElementById('drillDownTitle');
@@ -655,7 +633,6 @@
 
         function closeDrillDown() { document.getElementById('drillDownModal').style.display = 'none'; }
 
-        // ================= לוגיקת מחשבון רווח יומי מבודד ומורכב =================
         function addTempDailyItem() {
             const desc = document.getElementById('calcItemDesc').value.trim();
             const amount = parseFloat(document.getElementById('calcItemAmount').value);
@@ -711,8 +688,6 @@
 
             const net = totalIncome - totalExpense;
             document.getElementById('tempDailyNetTotal').innerText = `${net.toLocaleString()} ₪`;
-            
-            // הצגת כפתור ההזרקה למערכת המרכזית רק אם יש רווח חיובי נטו
             document.getElementById('btnInjectToMonthly').style.display = net > 0 ? 'block' : 'none';
         }
 
@@ -741,13 +716,14 @@
                 renderTempDailyItems();
                 await refreshDataSync();
             } else {
-                alert("שגיאה בהזרקת הנתונים לענן: " + error.message);
+                alert("שגיאה בהזרקת הנתונים: " + error.message);
             }
         }
 
-        // ================= שדרוג הגרף הדינמי (Chart.js) =================
         function updateChart() {
-            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            const canvas = document.getElementById('analyticsChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
             const timeframe = document.getElementById('chartTimeframe').value;
             const customDate = document.getElementById('chartCustomDate').value;
             
@@ -761,7 +737,6 @@
                 filteredData = filteredData.filter(e => e.date && e.date.substring(0, 4) === targetYear);
             }
 
-            // יצירת מפת קטגוריות לגרף
             let categoryMap = {};
             filteredData.forEach(e => {
                 let amt = parseFloat(e.amount || 0);
@@ -794,7 +769,6 @@
             });
         }
 
-        // ================= מודאל והגדרות מערכת (כולל שפה וערכת עיצוב) =================
         function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; toggleSidebar(); }
         function closeSettingsModal() { document.getElementById('settingsModal').style.display = 'none'; }
 
@@ -811,15 +785,14 @@
                 document.getElementById('mainTitle').innerText = "👑 Kobi hasidi Budget Management";
                 document.dir = "ltr";
             } else {
-                document.getElementById('mainTitle').innerText = "👑 Kobi hasidi ניהול הוצאות והכנסות";
+                document.getElementById('mainTitle').innerText = "👑 Kobi hasidi ניהול תקציב";
                 document.dir = "rtl";
             }
         }
 
-        // ================= מנוע התראות חכם וזמן אמת של האפליקציה =================
         function initRealTimeNotificationEngine() {
-            setInterval(checkApplicationAlarms, 60000); // בדיקה רצה ברקע כל דקה
-            checkApplicationAlarms(); // בדיקה מיידית בטעינה
+            setInterval(checkApplicationAlarms, 60000);
+            checkApplicationAlarms();
         }
 
         function checkApplicationAlarms() {
@@ -831,7 +804,6 @@
             const banner = document.getElementById('appNotification');
             const txt = document.getElementById('notificationText');
 
-            // 1. התראות שגרה יומיות
             if (hours === 8 && minutes === 0 && document.getElementById('alertMorning').checked) {
                 txt.innerText = "בוקר טוב קובי לא לשכוח להכניס נתונים של אתמול!";
                 banner.style.display = 'flex';
@@ -845,9 +817,7 @@
                 banner.style.display = 'flex';
             }
 
-            // 2. התראת חריגה ותקציב חסר (5 ימים לפני ה-10 לחודש, כלומר ב-5 לחודש)
             if (dayOfMonth === 5 && hours === 10 && minutes === 0 && document.getElementById('alertTenMonth').checked) {
-                // חישוב סך ההוצאות הצפויות מול ההכנסות הנוכחיות כדי לזהות חוסר
                 let currentMonthStr = now.toISOString().substring(0, 7);
                 let incTotal = 0;
                 let expTotal = 0;
