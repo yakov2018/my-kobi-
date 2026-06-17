@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KING Budget - Strategic Edition</title>
+    <title>KING Budget - Cloud Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --bg: #0f1216; --card: #1c2128; --green: #00e676; --red: #ff5252; --orange: #ffd740; --blue: #448aff; --text: #ffffff; }
         body { font-family: 'system-ui', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
@@ -25,76 +26,218 @@
         .category-content { display: none; padding: 10px; border-top: 1px solid #333; font-size: 0.9rem; }
         
         .day-summary { background: rgba(68, 138, 255, 0.1); padding: 10px; border-radius: 10px; margin: 10px 0; border-right: 4px solid var(--blue); text-align: right; }
-        .badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-right: 5px; vertical-align: middle; }
-        .badge-fixed { background: var(--orange); color: black; }
-        .badge-var { background: var(--blue); color: white; }
+        .user-item, .entry-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #222; }
+        .entry-clickable { cursor: pointer; flex-grow: 1; }
+        .note-box { display: none; padding: 5px 8px; background: rgba(255,255,255,0.03); color: #8b949e; border-radius: 6px; font-size: 0.8rem; margin-top: 4px; border-right: 2px solid var(--orange); }
+        .actions-cell { display: flex; gap: 8px; align-items: center; }
+        .actions-cell button { width: auto; padding: 2px 6px; margin: 0; background: none; border: none; cursor: pointer; font-size: 0.95rem; }
     </style>
 </head>
 <body>
 
-<div class="container" id="app">
-    <div class="nav-months">
-        <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
-        <h3 id="monthTitle">ינואר 2024</h3>
-        <button class="nav-btn" onclick="changeMonth(1)">▶</button>
+<div class="container">
+    <h2 style="text-align:center; letter-spacing: 1px; margin-bottom: 20px;">👑 KING BUDGET CLOUD</h2>
+
+    <div id="lockScreen" class="stat-card" style="text-align: center;">
+        <h3>מערכת מאובטחת - סנכרון ענן</h3>
+        <p id="loadingStatus" style="font-size:0.9rem; color:var(--orange);">מתחבר לשרת הענן...</p>
+        <div id="loginForm" style="display:none;">
+            <input type="text" id="userInput" placeholder="שם משתמש">
+            <input type="password" id="passInput" placeholder="סיסמה">
+            <button class="btn-main" onclick="login()" style="background: var(--green); color: black;">התחברות למערכת</button>
+        </div>
     </div>
 
-    <div class="stat-card">
-        <div class="grid-3">
-            <div><span class="label">הכנסות</span><span id="sumInc" class="val" style="color:var(--green)">0</span></div>
-            <div><span class="label">הוצאות שוטפות</span><span id="sumVar" class="val" style="color:var(--red)">0</span></div>
-            <div><span class="label">קבועות החודש</span><span id="sumFixed" class="val" style="color:var(--orange)">0</span></div>
+    <div id="app" style="display:none;">
+        <div style="display:flex; justify-content:space-between; font-size: 0.8rem; margin-bottom: 5px;">
+            <span style="color: var(--orange)">משתמש: <span id="userRoleBadge" style="font-weight:bold;"></span></span>
+            <button onclick="logout()" style="width:auto; padding:2px 8px; margin:0; background:#333; font-size:0.75rem;">התנתק ✖</button>
         </div>
-        <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
-        <div class="grid-3">
-            <div style="grid-column: span 2; text-align: right;">
-                <span class="label">סה"כ הוצאות (כללי)</span>
-                <span id="sumTotalExp" class="val">0</span>
+
+        <div class="nav-months">
+            <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
+            <h3 id="monthTitle">טוען...</h3>
+            <button class="nav-btn" onclick="changeMonth(1)">▶</button>
+        </div>
+
+        <div class="stat-card">
+            <div class="grid-3">
+                <div><span class="label">הכנסות</span><span id="sumInc" class="val" style="color:var(--green)">0</span></div>
+                <div><span class="label">הוצאות שוטפות</span><span id="sumVar" class="val" style="color:var(--red)">0</span></div>
+                <div><span class="label">קבועות החודש</span><span id="sumFixed" class="val" style="color:var(--orange)">0</span></div>
             </div>
-            <div>
-                <span class="label">יתרה נטו</span>
-                <span id="netBalance" class="val" style="font-size:1.4rem;">0</span>
+            <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+            <div class="grid-3">
+                <div style="grid-column: span 2; text-align: right;">
+                    <span class="label">סה"כ הוצאות (כללי)</span>
+                    <span id="sumTotalExp" class="val">0</span>
+                </div>
+                <div>
+                    <span class="label">יתרה נטו</span>
+                    <span id="netBalance" class="val" style="font-size:1.4rem;">0</span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="stat-card">
-        <input type="text" id="desc" placeholder="תיאור (שכירות, סופר...)">
-        <div style="display:flex; gap:5px;">
-            <input type="number" id="amount" placeholder="סכום">
-            <input type="date" id="datePicker">
+        <div class="stat-card" id="inputFormCard" style="display:none;">
+            <h4 id="formTitle" style="margin: 0 0 10px 0; color: var(--blue);">הוספת תנועה חדשה</h4>
+            <input type="text" id="desc" placeholder="תיאור (שכירות, סופר...)">
+            <div style="display:flex; gap:5px;">
+                <input type="number" id="amount" placeholder="סכום">
+                <input type="date" id="datePicker" onchange="render()">
+            </div>
+            <input type="text" id="note" placeholder="הערה (אופציונלי - קניות לשבת, תיקון רכב...)">
+            <select id="type" onchange="toggleInputs()">
+                <option value="variable">📉 הוצאה רגילה</option>
+                <option value="fixed">⏳ הוצאה קבועה (הוראת קבע)</option>
+                <option value="income">📈 הכנסה</option>
+            </select>
+            <div id="fixedOptions" style="display:none; border: 1px solid var(--orange); padding: 10px; border-radius: 10px; margin: 5px 0;">
+                <small>תאריך סיום חיוב (אופציונלי):</small>
+                <input type="date" id="endDate">
+            </div>
+            <button class="btn-main" id="submitEntryBtn" onclick="addEntry()">הוסף תנועה</button>
+            <button id="cancelEntryEditBtn" onclick="resetEntryForm()" style="background:#333; color:white; display:none; font-size:0.8rem;">ביטול עריכה</button>
         </div>
-        <select id="type" onchange="toggleInputs()">
-            <option value="variable">📉 הוצאה רגילה</option>
-            <option value="fixed">⏳ הוצאה קבועה (הוראת קבע)</option>
-            <option value="income">📈 הכנסה</option>
-        </select>
-        <div id="fixedOptions" style="display:none; border: 1px solid var(--orange); padding: 10px; border-radius: 10px; margin: 5px 0;">
-            <small>תאריך סיום חיוב (אופציונלי):</small>
-            <input type="date" id="endDate">
+
+        <div id="dayAnalysis" class="day-summary">
+            <strong>סיכום ליום שנבחר:</strong>
+            <div id="dayDetails">הזן או בחר תאריך</div>
         </div>
-        <button class="btn-main" onclick="addEntry()">הוסף תנועה</button>
+
+        <canvas id="mainChart" style="background:#fff; border-radius:18px; margin-bottom:15px;"></canvas>
+
+        <div id="categoryLists"></div>
+
+        <button onclick="exportCSV()" style="margin-top:20px; opacity:0.6;">📥 ייצוא נתונים (CSV)</button>
+        
+        <div id="adminPanel" style="display:none; margin-top:15px; border-top:1px solid #333; padding-top:15px;">
+            <button onclick="toggleSection('userManagerSection')" style="background:var(--card); border:1px solid var(--orange); color:var(--orange);">⚙️ ניהול משתמשים והרשאות</button>
+            
+            <div id="userManagerSection" class="stat-card" style="display:none; margin-top:10px; border:1px solid #444;">
+                <h4 id="userFormTitle">הוספת משתמש חדש</h4>
+                <input type="text" id="newUsername" placeholder="שם משתמש">
+                <input type="text" id="newPassword" placeholder="סיסמה">
+                <select id="newRole">
+                    <option value="viewer">👀 צופה בלבד (Read Only)</option>
+                    <option value="admin">👑 מנהל מערכת (Full Access)</option>
+                </select>
+                <button id="saveUserBtn" onclick="saveUser()" style="background:var(--green); color:black; font-weight:bold;">שמור משתמש</button>
+                <button id="cancelEditBtn" onclick="resetUserForm()" style="background:#333; color:white; display:none; font-size:0.8rem;">ביטול עריכה</button>
+                
+                <hr style="border-color:#333;">
+                <h4>רשימת משתמשים:</h4>
+                <div id="usersCloudList"></div>
+            </div>
+
+            <button onclick="resetAll()" style="background:none; color:var(--red); border:none; font-size:0.8rem; margin-top:15px; width:auto;">⚠ מחיקת כל הנתונים</button>
+        </div>
     </div>
-
-    <div id="dayAnalysis" class="day-summary" style="display:none;">
-        <strong>סיכום ליום שנבחר:</strong>
-        <div id="dayDetails"></div>
-    </div>
-
-    <canvas id="mainChart" style="background:#fff; border-radius:18px; margin-bottom:15px;"></canvas>
-
-    <div id="categoryLists"></div>
-
-    <button onclick="exportCSV()" style="margin-top:20px; opacity:0.6;">📥 ייצוא נתונים</button>
 </div>
 
 <script>
-    let entries = JSON.parse(localStorage.getItem("king_strategic_v1")) || [];
+    const SUPABASE_URL = "https://tcygeruobjzpxfmglgxo.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_Z6L3VGaWxUT5XRsrgJaXlw_7D62vq9j"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const STORAGE_KEY = "king_forever_data";
+    const USERS_KEY = "king_users_data";
+
+    let entries = [];
+    let localUsers = [];
     let viewDate = new Date();
-    viewDate.setDate(1); // Start of current month
+    viewDate.setDate(1); 
     let chart;
+    let currentUser = null;
+    let isCloudActive = false;
+    let isEditingUser = false;
+    let editingEntryId = null; // מזהה התנועה שנמצאת כרגע בעריכה
 
     document.getElementById('datePicker').valueAsDate = new Date();
+
+    async function initSystem() {
+        localUsers = JSON.parse(localStorage.getItem(USERS_KEY)) || [
+            { username: 'kobi', password: '1234', role: 'admin' },
+            { username: 'guest', password: '5678', role: 'viewer' }
+        ];
+        localStorage.setItem(USERS_KEY, JSON.stringify(localUsers));
+
+        try {
+            const { data, error } = await _supabase.from('king_users').select('username').limit(1);
+            if (!error) {
+                isCloudActive = true;
+            }
+        } catch (e) {}
+
+        document.getElementById("loadingStatus").style.display = "none";
+        document.getElementById("loginForm").style.display = "block";
+    }
+
+    async function login() {
+        const user = document.getElementById("userInput").value.trim().toLowerCase();
+        const pass = document.getElementById("passInput").value.trim();
+
+        if(!user || !pass) return alert("נא למלא שם משתמש וסיסמה");
+
+        let foundUser = null;
+
+        if (isCloudActive) {
+            const { data, error } = await _supabase.from('king_users').select('*').eq('username', user).single();
+            if (!error && data && data.password === pass) {
+                foundUser = data;
+            }
+        }
+
+        if (!foundUser) {
+            const localMatch = localUsers.find(u => u.username === user && u.password === pass);
+            if (localMatch) foundUser = localMatch;
+        }
+
+        if (!foundUser) return alert("שם משתמש או סיסמה שגויים");
+
+        currentUser = foundUser;
+        document.getElementById("lockScreen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        document.getElementById("userRoleBadge").innerText = currentUser.username + ` (${currentUser.role === 'admin' ? 'מנהל' : 'צופה'})`;
+
+        if (currentUser.role === 'admin') {
+            document.getElementById("inputFormCard").style.display = "block";
+            document.getElementById("adminPanel").style.display = "block";
+            loadUsersList();
+        } else {
+            document.getElementById("inputFormCard").style.display = "none";
+            document.getElementById("adminPanel").style.display = "none";
+        }
+
+        syncEntries();
+    }
+
+    function logout() {
+        currentUser = null;
+        entries = [];
+        document.getElementById("app").style.display = "none";
+        document.getElementById("lockScreen").style.display = "block";
+        document.getElementById("userInput").value = "";
+        document.getElementById("passInput").value = "";
+        resetUserForm();
+        resetEntryForm();
+    }
+
+    async function syncEntries() {
+        if (isCloudActive) {
+            const { data, error } = await _supabase.from('king_entries').select('*');
+            if (!error && data) {
+                entries = data.map(item => ({
+                    id: item.id, desc: item.description, amount: parseFloat(item.amount),
+                    type: item.type, date: item.date, endDate: item.end_date, note: item.note || ""
+                }));
+                render();
+                return;
+            }
+        }
+        entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        render();
+    }
 
     function toggleInputs() {
         document.getElementById('fixedOptions').style.display = 
@@ -106,20 +249,202 @@
         render();
     }
 
-    function addEntry() {
-        const desc = document.getElementById('desc').value;
+    // הוספה או עדכון של תנועה כספית
+    async function addEntry() {
+        if (currentUser.role !== 'admin') return;
+
+        const desc = document.getElementById('desc').value.trim();
         const amount = parseFloat(document.getElementById('amount').value);
         const type = document.getElementById('type').value;
         const date = document.getElementById('datePicker').value;
         const endDate = document.getElementById('endDate').value;
+        const note = document.getElementById('note').value.trim();
 
-        if(!desc || !amount) return;
+        if(!desc || !amount) return alert("נא למלא תיאור וסכום תקינים");
 
-        entries.push({ id: Date.now(), desc, amount, type, date, endDate: endDate || null });
-        localStorage.setItem("king_strategic_v1", JSON.stringify(entries));
+        if (editingEntryId) {
+            // לוגיקת עדכון תנועה קיימת
+            if (isCloudActive) {
+                await _supabase.from('king_entries').update({
+                    description: desc, amount: amount, type: type, date: date, end_date: endDate || null, note: note
+                }).eq('id', editingEntryId);
+            }
+            entries = entries.map(e => e.id === editingEntryId ? { id: editingEntryId, desc, amount, type, date, endDate: endDate || null, note } : e);
+            alert("התנועה עודכנה בהצלחה!");
+        } else {
+            // לוגיקת יצירת תנועה חדשה
+            const newId = Date.now();
+            const newItem = { id: newId, desc, amount, type, date, endDate: endDate || null, note };
+
+            if (isCloudActive) {
+                await _supabase.from('king_entries').insert([{
+                    id: newId, description: desc, amount: amount, type: type, date: date, end_date: endDate || null, note: note
+                }]);
+            }
+            entries.push(newItem);
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        resetEntryForm();
         render();
-        document.getElementById('desc').value = "";
-        document.getElementById('amount').value = "";
+    }
+
+    // העברת תנועה כספית למצב עריכה בטופס
+    function startEditEntry(id) {
+        const item = entries.find(e => e.id === id);
+        if (!item) return;
+
+        editingEntryId = id;
+        document.getElementById("formTitle").innerText = "✏️ עריכת תנועה קיימת";
+        document.getElementById("desc").value = item.desc;
+        document.getElementById("amount").value = item.amount;
+        document.getElementById("datePicker").value = item.date;
+        document.getElementById("note").value = item.note || "";
+        document.getElementById("type").value = item.type;
+        document.getElementById("endDate").value = item.endDate || "";
+
+        toggleInputs();
+
+        const btn = document.getElementById("submitEntryBtn");
+        btn.innerText = "עדכן תנועה בענן";
+        btn.style.background = "var(--orange)";
+        btn.style.color = "black";
+        document.getElementById("cancelEntryEditBtn").style.display = "block";
+        
+        // גלילה חלקה למעלה לטופס
+        document.getElementById("inputFormCard").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ביטול עריכת תנועה כספית
+    function resetEntryForm() {
+        editingEntryId = null;
+        document.getElementById("formTitle").innerText = "הוספת תנועה חדשה";
+        document.getElementById("desc").value = "";
+        document.getElementById("amount").value = "";
+        document.getElementById("datePicker").valueAsDate = new Date();
+        document.getElementById("note").value = "";
+        document.getElementById("type").value = "variable";
+        document.getElementById("endDate").value = "";
+        
+        toggleInputs();
+
+        const btn = document.getElementById("submitEntryBtn");
+        btn.innerText = "הוסף תנועה";
+        btn.style.background = "var(--blue)";
+        btn.style.color = "white";
+        document.getElementById("cancelEntryEditBtn").style.display = "none";
+    }
+
+    async function deleteItem(id) {
+        if (currentUser.role !== 'admin') return;
+        if (confirm("למחוק את התנועה הזו?")) {
+            if (isCloudActive) {
+                await _supabase.from('king_entries').delete().eq('id', id);
+            }
+            entries = entries.filter(e => e.id !== id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+            if (editingEntryId === id) resetEntryForm();
+            render();
+        }
+    }
+
+    // פתיחה/סגירה של שורת ההערה בלחיצה
+    function toggleNote(id) {
+        const noteEl = document.getElementById(`note-${id}`);
+        if (noteEl) {
+            noteEl.style.display = noteEl.style.display === "block" ? "none" : "block";
+        }
+    }
+
+    // ניהול משתמשים והרשאות
+    function loadUsersList() {
+        const listDiv = document.getElementById("usersCloudList");
+        listDiv.innerHTML = "";
+        localUsers.forEach(u => {
+            listDiv.innerHTML += `
+                <div class="user-item">
+                    <span>👤 <b>${u.username}</b> [${u.role === 'admin' ? 'מנהל' : 'צופה'}]</span>
+                    <div class="user-actions">
+                        <button onclick="editUser('${u.username}')" style="background:var(--blue); color:white; border:none; padding:3px 8px; border-radius:5px;">✏️</button>
+                        ${u.username !== 'kobi' ? `<button onclick="deleteUser('${u.username}')" style="background:var(--red); color:white; border:none; padding:3px 8px; border-radius:5px;">❌</button>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function editUser(username) {
+        const user = localUsers.find(u => u.username === username);
+        if (!user) return;
+
+        isEditingUser = true;
+        document.getElementById("userFormTitle").innerText = `עריכת משתמש: ${username}`;
+        document.getElementById("newUsername").value = user.username;
+        document.getElementById("newUsername").disabled = true;
+        document.getElementById("newPassword").value = user.password;
+        document.getElementById("newRole").value = user.role;
+        
+        const saveBtn = document.getElementById("saveUserBtn");
+        saveBtn.innerText = "עדכן משתמש בענן";
+        saveBtn.style.background = "var(--blue)";
+        saveBtn.style.color = "white";
+        document.getElementById("cancelEditBtn").style.display = "block";
+    }
+
+    function resetUserForm() {
+        isEditingUser = false;
+        document.getElementById("userFormTitle").innerText = "הוספת משתמש חדש";
+        document.getElementById("newUsername").value = "";
+        document.getElementById("newUsername").disabled = false;
+        document.getElementById("newPassword").value = "";
+        document.getElementById("newRole").value = "viewer";
+        
+        const saveBtn = document.getElementById("saveUserBtn");
+        saveBtn.innerText = "שמור משתמש";
+        saveBtn.style.background = "var(--green)";
+        saveBtn.style.color = "black";
+        document.getElementById("cancelEditBtn").style.display = "none";
+    }
+
+    async function saveUser() {
+        const username = document.getElementById("newUsername").value.trim().toLowerCase();
+        const pass = document.getElementById("newPassword").value.trim();
+        const role = document.getElementById("newRole").value;
+
+        if(!username || !pass) return alert("נא למלא שם וסיסמה");
+
+        if (isEditingUser) {
+            localUsers = localUsers.map(u => u.username === username ? { username, password: pass, role } : u);
+            localStorage.setItem(USERS_KEY, JSON.stringify(localUsers));
+            if (isCloudActive) {
+                await _supabase.from('king_users').update({ password: pass, role: role }).eq('username', username);
+            }
+            alert(`המשתמש ${username} עודכן בהצלחה!`);
+        } else {
+            if (localUsers.some(u => u.username === username)) return alert("שם משתמש זה כבר קיים");
+
+            const newUser = { username, password: pass, role };
+            localUsers.push(newUser);
+            localStorage.setItem(USERS_KEY, JSON.stringify(localUsers));
+            if (isCloudActive) {
+                await _supabase.from('king_users').insert([newUser]);
+            }
+            alert(`המשתמש ${username} נוצר בהצלחה!`);
+        }
+        resetUserForm();
+        loadUsersList();
+    }
+
+    function deleteUser(username) {
+        if(confirm(`למחוק את המשתמש ${username}?`)) {
+            localUsers = localUsers.filter(u => u.username !== username);
+            localStorage.setItem(USERS_KEY, JSON.stringify(localUsers));
+            if (isCloudActive) {
+                _supabase.from('king_users').delete().eq('username', username);
+            }
+            if(isEditingUser && document.getElementById("newUsername").value === username) resetUserForm();
+            loadUsersList();
+        }
     }
 
     function render() {
@@ -136,10 +461,8 @@
             const isRecurring = item.type === 'fixed';
             const endD = item.endDate ? new Date(item.endDate) : null;
 
-            // Logic to check if entry belongs to the viewed month
             let active = false;
             if (isRecurring) {
-                // Fixed cost is active if started before/on this month AND (no end date OR ends after/on this month)
                 const startOfView = new Date(y, m, 1);
                 const startOfItem = new Date(d.getFullYear(), d.getMonth(), 1);
                 if (startOfItem <= startOfView) {
@@ -154,14 +477,12 @@
                 else if (item.type === 'fixed') { fixExp += item.amount; cats["הוצאות קבועות"].push(item); }
                 else { varExp += item.amount; cats["הוצאות רגילות"].push(item); }
 
-                // Group by day for day analysis
                 const dayKey = item.date;
                 if (!dayMap[dayKey]) dayMap[dayKey] = 0;
                 dayMap[dayKey] += (item.type === 'income' ? item.amount : -item.amount);
             }
         });
 
-        // Update Dashboard
         document.getElementById('sumInc').innerText = "₪" + inc.toLocaleString();
         document.getElementById('sumVar').innerText = "₪" + varExp.toLocaleString();
         document.getElementById('sumFixed').innerText = "₪" + fixExp.toLocaleString();
@@ -170,10 +491,8 @@
         document.getElementById('netBalance').innerText = "₪" + net.toLocaleString();
         document.getElementById('netBalance').style.color = net >= 0 ? "var(--green)" : "var(--red)";
 
-        // Day Analysis Sync
         const selectedDate = document.getElementById('datePicker').value;
         const daySum = dayMap[selectedDate] || 0;
-        document.getElementById('dayAnalysis').style.display = "block";
         document.getElementById('dayDetails').innerText = `${selectedDate}: מאזן יומי של ₪${daySum.toLocaleString()}`;
 
         renderCategories(cats);
@@ -187,8 +506,8 @@
         for (let name in cats) {
             if (cats[name].length === 0) continue;
             const sum = cats[name].reduce((a, b) => a + b.amount, 0);
-            
-            const html = `
+
+            container.innerHTML += `
                 <div class="category-group">
                     <div class="category-header" onclick="toggleCat(this)">
                         <span>${name} (${cats[name].length})</span>
@@ -196,20 +515,36 @@
                     </div>
                     <div class="category-content">
                         ${cats[name].map(i => `
-                            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #333;">
-                                <span>${i.desc} <small style="color:#8b949e">${i.date}</small></span>
-                                <span>₪${i.amount} <button onclick="deleteItem(${i.id})" style="width:auto; padding:2px; margin-right:10px;">🗑️</button></span>
+                            <div class="entry-row">
+                                <div class="entry-clickable" onclick="toggleNote(${i.id})">
+                                    <div style="display:flex; justify-content:space-between; padding-left:10px;">
+                                        <span>${i.desc} <small style="color:#8b949e; font-size:0.75rem;">(${i.date})</small></span>
+                                        <span style="font-weight:bold;">₪${i.amount.toLocaleString()}</span>
+                                    </div>
+                                    <div id="note-${i.id}" class="note-box">
+                                        📝 ${i.note ? i.note : "אין הערות רשומות לתנועה זו."}
+                                    </div>
+                                </div>
+                                ${currentUser && currentUser.role === "admin" ? `
+                                <div class="actions-cell">
+                                    <button onclick="startEditEntry(${i.id})" title="ערוך">✏️</button>
+                                    <button onclick="deleteItem(${i.id})" title="מחק">🗑️</button>
+                                </div>` : ''}
                             </div>
                         `).join('')}
                     </div>
                 </div>`;
-            container.innerHTML += html;
         }
     }
 
     function toggleCat(el) {
         const content = el.nextElementSibling;
         content.style.display = content.style.display === "block" ? "none" : "block";
+    }
+
+    function toggleSection(id) {
+        const el = document.getElementById(id);
+        el.style.display = el.style.display === "block" ? "none" : "block";
     }
 
     function updateChart(inc, vExp, fExp) {
@@ -225,23 +560,27 @@
         });
     }
 
-    function deleteItem(id) {
-        entries = entries.filter(e => e.id !== id);
-        localStorage.setItem("king_strategic_v1", JSON.stringify(entries));
-        render();
+    async function resetAll() { 
+        if (currentUser.role !== 'admin') return;
+        if(confirm("למחוק את כל הנתונים לצמיתות?")) { 
+            if (isCloudActive) {
+                await _supabase.from('king_entries').delete().neq('id', 0);
+            }
+            entries = [];
+            localStorage.removeItem(STORAGE_KEY);
+            render();
+        } 
     }
 
     function exportCSV() {
-        let csv = "Date,Desc,Type,Amount,EndDate\n";
-        entries.forEach(e => csv += `${e.date},${e.desc},${e.type},${e.amount},${e.endDate||''}\n`);
+        let csv = "Date,Desc,Type,Amount,EndDate,Note\n";
+        entries.forEach(e => csv += `${e.date},${e.desc},${e.type},${e.amount},${e.endDate||''},${e.note||''}\n`);
         const blob = new Blob([csv], {type: 'text/csv'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob); a.download = 'budget_king.csv'; a.click();
     }
 
-    render(); // Initial load
+    initSystem();
 </script>
-
 </body>
 </html>
-
