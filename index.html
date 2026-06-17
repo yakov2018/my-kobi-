@@ -36,7 +36,7 @@
 <body>
 
 <div class="container">
-    <h2 style="text-align:center; letter-spacing: 1px; margin-bottom: 20px;">👑 KING BUDGET CLOUD</h2>
+    <h2 style="text-align:center; letter-spacing: 1px; margin-bottom: 20px;">👑 Kobi hasidi ניהול הוצאות והכנסות</h2>
 
     <div id="lockScreen" class="stat-card" style="text-align: center;">
         <h3>מערכת מאובטחת - סנכרון ענן</h3>
@@ -408,5 +408,179 @@
 
     async function saveUser() {
         const username = document.getElementById("newUsername").value.trim().toLowerCase();
-        const pass = document.getElementById("newPassword").value.trim
+        const pass = document.getElementById("newPassword").value.trim();
+        const role = document.getElementById("newRole").value;
 
+        if(!username || !pass) return alert("נא למלא שם וסיסמה");
+
+        if (isEditingUser) {
+            localUsers = localUsers.map(u => u.username === username ? { username, password: pass, role } : u);
+            localStorage.setItem(USERS_KEY, JSON.stringify(localUsers));
+            if (isCloudActive) {
+                await _supabase.from('king_users').update({ password: pass, role: role }).eq('username', username);
+            }
+            alert(`המשתמש ${username} עודכן בהצלחה!`);
+        } else {
+            if (localUsers.some(u => u.username === username)) return alert("שם משתמש זה כבר קיים");
+
+            const newUser = { username, password: pass, role };
+            localUsers.push(newUser);
+            localStorage.setItem(USERS_KEY, JSON.stringify(localUsers));
+            if (isCloudActive) {
+                await _supabase.from('king_users').insert([newUser]);
+            }
+            alert(`המשתמש ${username} נוצר בהצלחה!`);
+        }
+        resetUserForm();
+        loadUsersList();
+    }
+
+    function deleteUser(username) {
+        if(confirm(`למחוק את המשתמש ${username}?`)) {
+            localUsers = localUsers.filter(u => u.username !== username);
+            localStorage.setItem(USERS_KEY, JSON.stringify(localUsers));
+            if (isCloudActive) {
+                _supabase.from('king_users').delete().eq('username', username);
+            }
+            if(isEditingUser && document.getElementById("newUsername").value === username) resetUserForm();
+            loadUsersList();
+        }
+    }
+
+    function render() {
+        const m = viewDate.getMonth();
+        const y = viewDate.getFullYear();
+        document.getElementById('monthTitle').innerText = viewDate.toLocaleString('he-IL', { month: 'long', year: 'numeric' });
+
+        let inc = 0, varExp = 0, fixExp = 0;
+        const cats = { "הכנסות": [], "הוצאות רגילות": [], "הוצאות קבועות": [] };
+        const dayMap = {};
+
+        entries.forEach(item => {
+            const d = new Date(item.date);
+            const isRecurring = item.type === 'fixed';
+            const endD = item.endDate ? new Date(item.endDate) : null;
+
+            let active = false;
+            if (isRecurring) {
+                const startOfView = new Date(y, m, 1);
+                const startOfItem = new Date(d.getFullYear(), d.getMonth(), 1);
+                if (startOfItem <= startOfView) {
+                    if (!endD || endD >= startOfView) active = true;
+                }
+            } else {
+                if (d.getMonth() === m && d.getFullYear() === y) active = true;
+            }
+
+            if (active) {
+                if (item.type === 'income') { inc += item.amount; cats["הכנסות"].push(item); }
+                else if (item.type === 'fixed') { fixExp += item.amount; cats["הוצאות קבועות"].push(item); }
+                else { varExp += item.amount; cats["הוצאות רגילות"].push(item); }
+
+                const dayKey = item.date;
+                if (!dayMap[dayKey]) dayMap[dayKey] = 0;
+                dayMap[dayKey] += (item.type === 'income' ? item.amount : -item.amount);
+            }
+        });
+
+        document.getElementById('sumInc').innerText = "₪" + inc.toLocaleString();
+        document.getElementById('sumVar').innerText = "₪" + varExp.toLocaleString();
+        document.getElementById('sumFixed').innerText = "₪" + fixExp.toLocaleString();
+        document.getElementById('sumTotalExp').innerText = "₪" + (varExp + fixExp).toLocaleString();
+        const net = inc - varExp - fixExp;
+        document.getElementById('netBalance').innerText = "₪" + net.toLocaleString();
+        document.getElementById('netBalance').style.color = net >= 0 ? "var(--green)" : "var(--red)";
+
+        const selectedDate = document.getElementById('datePicker').value;
+        const daySum = dayMap[selectedDate] || 0;
+        document.getElementById('dayDetails').innerText = `${selectedDate}: מאזן יומי של ₪${daySum.toLocaleString()}`;
+
+        renderCategories(cats);
+        updateChart(inc, varExp, fixExp);
+    }
+
+    function renderCategories(cats) {
+        const container = document.getElementById('categoryLists');
+        container.innerHTML = "";
+        
+        for (let name in cats) {
+            if (cats[name].length === 0) continue;
+            const sum = cats[name].reduce((a, b) => a + b.amount, 0);
+
+            container.innerHTML += `
+                <div class="category-group">
+                    <div class="category-header" onclick="toggleCat(this)">
+                        <span>${name} (${cats[name].length})</span>
+                        <b>₪${sum.toLocaleString()}</b>
+                    </div>
+                    <div class="category-content">
+                        ${cats[name].map(i => `
+                            <div class="entry-row">
+                                <div class="entry-clickable" onclick="toggleNote(${i.id})">
+                                    <div style="display:flex; justify-content:space-between; padding-left:10px;">
+                                        <span>${i.desc} <small style="color:#8b949e; font-size:0.75rem;">(${i.date})</small></span>
+                                        <span style="font-weight:bold;">₪${i.amount.toLocaleString()}</span>
+                                    </div>
+                                    <div id="note-${i.id}" class="note-box">
+                                        📝 ${i.note ? i.note : "אין הערות רשומות לתנועה זו."}
+                                    </div>
+                                </div>
+                                ${currentUser && currentUser.role === "admin" ? `
+                                <div class="actions-cell">
+                                    <button onclick="startEditEntry(${i.id})" title="ערוך">✏️</button>
+                                    <button onclick="deleteItem(${i.id})" title="מחק">🗑️</button>
+                                </div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }
+    }
+
+    function toggleCat(el) {
+        const content = el.nextElementSibling;
+        content.style.display = content.style.display === "block" ? "none" : "block";
+    }
+
+    function toggleSection(id) {
+        const el = document.getElementById(id);
+        el.style.display = el.style.display === "block" ? "none" : "block";
+    }
+
+    function updateChart(inc, vExp, fExp) {
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        if(chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['הכנסות', 'הוצאות שוטפות', 'הוצאות קבועות'],
+                datasets: [{ data: [inc, vExp, fExp], backgroundColor: ['#00e676', '#448aff', '#ffd740'], borderWidth: 0 }]
+            },
+            options: { plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    async function resetAll() { 
+        if (currentUser.role !== 'admin') return;
+        if(confirm("למחוק את כל הנתונים לצמיתות?")) { 
+            if (isCloudActive) {
+                await _supabase.from('king_entries').delete().neq('id', 0);
+            }
+            entries = [];
+            localStorage.removeItem(STORAGE_KEY);
+            render();
+        } 
+    }
+
+    function exportCSV() {
+        let csv = "Date,Desc,Type,Amount,EndDate,Note\n";
+        entries.forEach(e => csv += `${e.date},${e.desc},${e.type},${e.amount},${e.endDate||''},${e.note||''}\n`);
+        const blob = new Blob([csv], {type: 'text/csv'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = 'budget_king.csv'; a.click();
+    }
+
+    initSystem();
+</script>
+</body>
+</html>
