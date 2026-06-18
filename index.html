@@ -3,98 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KING Budget - Cloud Mega Edition</title>
+    <title>KING Budget - Cloud Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { 
-            --bg: #0f1216; 
-            --card: #1c2128; 
-            --green: #00e676; 
-            --red: #ff5252; 
-            --orange: #ffd740; 
-            --blue: #448aff; 
-            --text: #ffffff;
-            --border: #30363d;
-            --input-bg: #21262d;
-        }
-        body.light-theme {
-            --bg: #f4f6f9;
-            --card: #ffffff;
-            --text: #1c2128;
-            --border: #ccc;
-            --input-bg: #f9f9f9;
-        }
-        body { font-family: 'system-ui', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; transition: all 0.3s ease; }
-        .container { max-width: 600px; margin: auto; padding-top: 50px; }
+        :root { --bg: #0f1216; --card: #1c2128; --green: #00e676; --red: #ff5252; --orange: #ffd740; --blue: #448aff; --text: #ffffff; }
+        body { font-family: 'system-ui', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
+        .container { max-width: 600px; margin: auto; }
         .stat-card { background: var(--card); padding: 15px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-bottom: 15px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center; }
-        .val { font-size: 1.1rem; font-weight: bold; display: block; cursor: pointer; }
+        .val { font-size: 1.1rem; font-weight: bold; display: block; }
         .label { font-size: 0.75rem; color: #8b949e; }
         
-        input, select, button { padding: 12px; margin: 5px 0; width: 100%; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); box-sizing: border-box; }
-        .btn-main { background: var(--blue); border: none; font-weight: bold; cursor: pointer; color: white; }
+        input, select, button { padding: 12px; margin: 5px 0; width: 100%; border-radius: 10px; border: 1px solid #30363d; background: #21262d; color: white; box-sizing: border-box; }
+        .btn-main { background: var(--blue); border: none; font-weight: bold; cursor: pointer; }
         
         .nav-months { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: var(--card); border-radius: 12px; padding: 5px; }
-        .nav-btn { width: auto; padding: 5px 20px; background: #30363d; margin: 0; color: white; }
+        .nav-btn { width: auto; padding: 5px 20px; background: #30363d; margin: 0; }
 
-        .category-group { background: var(--card); border-radius: 12px; margin-bottom: 8px; overflow: hidden; border: 1px solid var(--border); }
+        .category-group { background: var(--card); border-radius: 12px; margin-bottom: 8px; overflow: hidden; border: 1px solid #333; }
         .category-header { padding: 12px; display: flex; justify-content: space-between; cursor: pointer; background: rgba(255,255,255,0.05); }
-        .category-content { display: none; padding: 10px; border-top: 1px solid var(--border); font-size: 0.9rem; }
+        .category-content { display: none; padding: 10px; border-top: 1px solid #333; font-size: 0.9rem; }
         
         .day-summary { background: rgba(68, 138, 255, 0.1); padding: 10px; border-radius: 10px; margin: 10px 0; border-right: 4px solid var(--blue); text-align: right; }
-        .entry-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .user-item, .entry-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #222; }
         .entry-clickable { cursor: pointer; flex-grow: 1; }
-        .note-box { display: none; padding: 5px 8px; background: rgba(255,255,255,0.03); color: #8b949e; border-radius: 6px; font-size: 0.8rem; margin-top: 4px; border-right: 2px solid var(--orange); }
+        .note-box { display: none; padding: 5px 8px; background: rgba(255,255,255,0.03); color: #8b949e; border-radius: 6px; font-size: 0.8rem; margin-top: 4px; border-right: 2px solid var(--orange); line-height: 1.4; }
         .actions-cell { display: flex; gap: 8px; align-items: center; }
         .actions-cell button { width: auto; padding: 2px 6px; margin: 0; background: none; border: none; cursor: pointer; font-size: 0.95rem; }
-
-        .hamburger-btn { position: fixed; top: 10px; right: 10px; z-index: 1000; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; width: auto; }
-        .sidebar { position: fixed; top: 0; right: -280px; width: 260px; height: 100%; background: var(--card); box-shadow: -2px 0 15px rgba(0,0,0,0.5); z-index: 999; transition: right 0.3s ease; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; }
-        .sidebar.open { right: 0; }
-        .sidebar-menu { list-style: none; padding: 0; margin: 40px 0 0 0; }
-        .sidebar-menu li { padding: 12px 10px; border-bottom: 1px solid var(--border); cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        .sidebar-menu li:hover { background: rgba(255,255,255,0.05); }
-        .sidebar-bottom { border-top: 1px solid var(--border); padding-top: 10px; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: var(--card); width: 90%; max-width: 500px; padding: 20px; border-radius: 15px; max-height: 80%; overflow-y: auto; position: relative; border: 1px solid var(--border); }
-        .close-modal { position: absolute; top: 10px; left: 10px; cursor: pointer; font-size: 1.2rem; }
-
-        .app-view { display: none; }
-        .app-view.active { display: block; }
     </style>
 </head>
 <body>
 
-<button class="hamburger-btn" id="menuToggleBtn" onclick="toggleSidebar()" style="display: none;">☰</button>
-
-<div class="sidebar" id="sidebarMenu">
-    <div>
-        <h3 style="text-align: center; margin-bottom: 10px;">👑 KING Menu</h3>
-        <ul class="sidebar-menu">
-            <li onclick="switchView('dashboard')">🏠 דאשבורד ראשי</li>
-            <li onclick="switchView('monthly-exp')">📉 הוצאות חודשיות</li>
-            <li onclick="switchView('monthly-inc')">📈 הכנסות חודשיות</li>
-            <li onclick="switchView('daily-exp')">📅 הוצאות יומיות</li>
-            <li onclick="switchView('daily-profit-calc')">🧮 מחשבון רווח יומי</li>
-            <li onclick="switchView('categories-mgmt')">🏷️ ניהול קטגוריות</li>
-            <li onclick="switchView('search-view')">🔍 חיפוש חופשי</li>
-            <li onclick="switchView('yearly-summary')">📊 סיכום שנתי</li>
-        </ul>
-    </div>
-    <div class="sidebar-bottom">
-        <h4>⚙️ הגדרות מערכת</h4>
-        <button onclick="toggleTheme()" style="font-size: 0.85rem; padding: 6px;">🌓 שינוי עיצוב (בהיר/כהה)</button>
-        <button onclick="toggleLanguage()" style="font-size: 0.85rem; padding: 6px;">🌐 שפה / Language</button>
-        <div style="margin-top: 8px; font-size: 0.8rem;">
-            <label><input type="checkbox" id="notifyToggle" checked onchange="saveSettings()" style="width:auto; margin:0;"> הפעל התראות דחיפה</label>
-        </div>
-    </div>
-</div>
-
 <div class="container">
-    <h2 id="mainTitle" style="text-align:center; letter-spacing: 1px; margin-bottom: 20px;">👑 Kobi Hasidi - ניהול פיננסי KING</h2>
+    <h2 style="text-align:center; letter-spacing: 1px; margin-bottom: 20px;">👑 Kobi hasidi ניהול הוצאות והכנסות</h2>
 
     <div id="lockScreen" class="stat-card" style="text-align: center;">
         <h3>מערכת מאובטחת - סנכרון ענן</h3>
@@ -109,164 +51,93 @@
     <div id="app" style="display:none;">
         <div style="display:flex; justify-content:space-between; font-size: 0.8rem; margin-bottom: 5px;">
             <span style="color: var(--orange)">משתמש: <span id="userRoleBadge" style="font-weight:bold;"></span></span>
-            <button onclick="logout()" style="width:auto; padding:2px 8px; margin:0; background:#333; font-size:0.75rem; color: white;">התנתק ✖</button>
+            <button onclick="logout()" style="width:auto; padding:2px 8px; margin:0; background:#333; font-size:0.75rem;">התנתק ✖</button>
         </div>
 
-        <div id="view-dashboard" class="app-view active">
-            <div class="nav-months">
-                <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
-                <h3 id="monthTitle">טוען...</h3>
-                <button class="nav-btn" onclick="changeMonth(1)">▶</button>
-            </div>
-
-            <div class="stat-card">
-                <div class="grid-3">
-                    <div onclick="openDrillDown('income')"><span class="label">הכנסות החודש</span><span id="sumInc" class="val" style="color:var(--green)">0</span></div>
-                    <div onclick="openDrillDown('variable')"><span class="label">הוצאות שוטפות</span><span id="sumVar" class="val" style="color:var(--red)">0</span></div>
-                    <div onclick="openDrillDown('fixed')"><span class="label">קבועות / הורדות</span><span id="sumFixed" class="val" style="color:var(--orange)">0</span></div>
-                </div>
-                <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
-                <div class="grid-3">
-                    <div style="grid-column: span 2; text-align: right;">
-                        <span class="label">סה"כ הוצאות (כללי)</span>
-                        <span id="sumTotalExp" class="val">0</span>
-                    </div>
-                    <div>
-                        <span class="label">יתרה נטו</span>
-                        <span id="netBalance" class="val" style="font-size:1.4rem;">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div style="display: flex; gap: 5px; margin-bottom: 8px;">
-                    <select id="chartTypeSelect" onchange="render()" style="padding: 5px; font-size: 0.8rem;">
-                        <option value="pie">גרף עוגה חודשי</option>
-                        <option value="bar">גרף עמודות השוואתי</option>
-                    </select>
-                </div>
-                <canvas id="mainChart" style="background:#fff; border-radius:18px;"></canvas>
-            </div>
-
-            <div class="stat-card" id="inputFormCard" style="display:none;">
-                <h4 id="formTitle" style="margin: 0 0 10px 0; color: var(--blue);">הוספת תנועה חדשה</h4>
-                <input type="text" id="desc" placeholder="תיאור (שכירות, סופר...)">
-                <div style="display:flex; gap:5px;">
-                    <input type="number" id="amount" placeholder="סכום">
-                    <input type="date" id="datePicker" onchange="render()">
-                </div>
-                
-                <select id="entryCategorySelect">
-                    <option value="כללי">בחר קטגוריה (אופציונלי)</option>
-                </select>
-
-                <input type="text" id="note" placeholder="הערה (אופציונלי - קניות לשבת, תיקון רכב...)">
-                <select id="type" onchange="toggleInputs()">
-                    <option value="variable">📉 הוצאה רגילה</option>
-                    <option value="fixed">⏳ הוצאה קבועה (הוראת קבע/אשראי)</option>
-                    <option value="income">📈 הכנסה</option>
-                </select>
-                
-                <div id="fixedOptions" style="display:none; border: 1px solid var(--orange); padding: 10px; border-radius: 10px; margin: 5px 0;">
-                    <small>ניהול זמני חיוב קבועים:</small>
-                    <input type="date" id="swipeDate" placeholder="תאריך סליקה / קנייה בפועל">
-                    <input type="date" id="deductionDate" placeholder="תאריך ירידת החיוב בבנק">
-                    <small>תאריך סיום חיוב סופי (אופציונלי):</small>
-                    <input type="date" id="endDate">
-                </div>
-                <button class="btn-main" id="submitEntryBtn" onclick="addEntry()">הוסף תנועה</button>
-                <button id="cancelEntryEditBtn" onclick="resetEntryForm()" style="background:#333; color:white; display:none; font-size:0.8rem;">ביטול עריכה</button>
-            </div>
-
-            <div id="categoryLists"></div>
+        <div class="nav-months">
+            <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
+            <h3 id="monthTitle">טוען...</h3>
+            <button class="nav-btn" onclick="changeMonth(1)">▶</button>
         </div>
 
-        <div id="view-monthly-exp" class="app-view">
-            <h3>📉 פירוט הוצאות חודשיות</h3>
-            <div id="monthlyExpensesList"></div>
-        </div>
-
-        <div id="view-monthly-inc" class="app-view">
-            <h3>📈 פירוט הכנסות חודשיות</h3>
-            <div id="monthlyIncomesList"></div>
-        </div>
-
-        <div id="view-daily-exp" class="app-view">
-            <h3>📅 פילוח הוצאות לפי ימים</h3>
-            <input type="date" id="dailyViewDatePicker" onchange="loadDailyViewData()">
-            <div id="dayAnalysis" class="day-summary" style="margin-top: 15px;">
-                <strong>סיכום ליום שנבחר:</strong>
-                <div id="dayDetails">בחר תאריך לצפייה</div>
+        <div class="stat-card">
+            <div class="grid-3">
+                <div><span class="label">הכנסות</span><span id="sumInc" class="val" style="color:var(--green)">0</span></div>
+                <div><span class="label">הוצאות שוטפות</span><span id="sumVar" class="val" style="color:var(--red)">0</span></div>
+                <div><span class="label">קבועות החודש</span><span id="sumFixed" class="val" style="color:var(--orange)">0</span></div>
             </div>
-            <div id="dailyEntriesContainer"></div>
+            <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+            <div class="grid-3">
+                <div style="grid-column: span 2; text-align: right;">
+                    <span class="label">סה"כ הוצאות (כללי)</span>
+                    <span id="sumTotalExp" class="val">0</span>
+                </div>
+                <div>
+                    <span class="label">יתרה נטו</span>
+                    <span id="netBalance" class="val" style="font-size:1.4rem;">0</span>
+                </div>
+            </div>
         </div>
 
-        <div id="view-daily-profit-calc" class="app-view">
-            <h3>🧮 מחשבון רווח יומי עצמאי</h3>
-            <p style="font-size: 0.8rem; opacity: 0.8;">מחשבון מבודד לחישוב רווח יומי נטו. ניתן לשייך הוצאה להכנסה ספציפית, ובסיום להזרים את השורה התחתונה ישירות לתקציב החודשי.</p>
+        <div class="stat-card" id="inputFormCard" style="display:none;">
+            <h4 id="formTitle" style="margin: 0 0 10px 0; color: var(--blue);">הוספת תנועה חדשה</h4>
+        
+            <input type="text" id="desc" placeholder="תיאור (שכירות, סופר...)">
+            <div style="display:flex; gap:5px;">
+                <input type="number" id="amount" placeholder="סכום">
+                <input type="date" id="datePicker" onchange="render()">
+            </div>
+            <input type="text" id="note" placeholder="הערה (אופציונלי - קניות לשבת, תיקון רכב...)">
             
-            <div class="stat-card">
-                <input type="date" id="calcDatePicker">
-                <input type="text" id="calcDesc" placeholder="תיאור הפעולה היומית">
-                <input type="number" id="calcAmount" placeholder="סכום">
-                <select id="calcType" onchange="updateCalcIncomeDropdown()">
-                    <option value="income">📈 הכנסה יומית</option>
-                    <option value="expense">📉 הוצאה יומית</option>
-                </select>
-                
-                <div id="calcLinkContainer" style="display: none;">
-                    <small>שייך הוצאה זו להכנסה הבאה:</small>
-                    <select id="calcLinkToIncome"><option value="">ללא שיוך מיוחד</option></select>
+            <select id="category">
+                <option value="">🏷️ בחר קטגוריה (אופציונלי)</option>
+                <option value="סופר ומזון">🛒 סופר ומזון</option>
+                <option value="רכב ותחבורה">🚗 רכב ותחבורה</option>
+                <option value="מגורים וחשבונות">🏠 מגורים וחשבונות</option>
+                <option value="פנאי ובילויים">🎉 פנאי ובילויים</option>
+                <option value="בריאות">💊 בריאות</option>
+                <option value="הכנסה ומשכורת">💰 הככנסה ומשכורת</option>
+                <option value="אחר">📦 אחר</option>
+            </select>
+
+            <div style="display:flex; gap:5px; margin: 5px 0;">
+                <div style="flex:1;">
+                    <small style="font-size:0.75rem; color:#8b949e; display:block; text-align:right;">תאריך גיהוץ אשראי:</small>
+                    <input type="date" id="swipeDate">
                 </div>
-                
-                <input type="text" id="calcNote" placeholder="הערות לפעילות זו">
-                <button class="btn-main" onclick="addDailyCalcItem()" style="background: var(--orange); color: black;">שמור פעולה במחשבון</button>
-            </div>
-
-            <div class="stat-card" style="background: rgba(0,0,0,0.2);">
-                <h4>📋 פעולות שנרשמו היום במחשבון</h4>
-                <div id="dailyCalcRows"></div>
-                <hr style="border-color: var(--border);">
-                <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                    <span>רווח יומי סופי נטו:</span>
-                    <span id="dailyCalcNetTotal" style="color: var(--green);">₪0</span>
-                </div>
-                <button class="btn-main" onclick="injectDailyProfitToBudget()" style="background: var(--green); color: black; margin-top: 10px;">➕ שדרג והזרם רווח סופי לתקציב החודשי</button>
-            </div>
-        </div>
-
-        <div id="view-categories-mgmt" class="app-view">
-            <h3>🏷️ ניהול קטגוריות מותאמות אישית</h3>
-            <div class="stat-card">
-                <input type="text" id="newCategoryInput" placeholder="שם קטגוריה חדשה (למשל: דלק, אוכל, רכב)">
-                <button class="btn-main" onclick="addNewCategory()">צור קטגוריה חדשה</button>
-            </div>
-            <h4>רשימת קטגוריות קיימות:</h4>
-            <div id="customCategoriesList"></div>
-        </div>
-
-        <div id="view-search-view" class="app-view">
-            <h3>🔍 מנגנון חיפוש חופשי</h3>
-            <input type="text" id="searchInput" placeholder="הקלד מילת חיפוש (סופר, דלק, תיקון...)" oninput="performSearch()">
-            <div id="searchResults" style="margin-top: 15px;"></div>
-        </div>
-
-        <div id="view-yearly-summary" class="app-view">
-            <h3>📊 סיכום שנתי מקיף (YTD)</h3>
-            <div class="stat-card" style="text-align: center;">
-                <h4 id="yearlyTitleYear">שנת 2026</h4>
-                <div class="grid-3" style="margin-top: 15px;">
-                    <div><span class="label">סה"כ הכנסות</span><span id="yearlyTotalInc" class="val" style="color:var(--green)">₪0</span></div>
-                    <div><span class="label">סה"כ הוצאות</span><span id="yearlyTotalExp" class="val" style="color:var(--red)">₪0</span></div>
-                    <div><span class="label">מאזן מצטבר</span><span id="yearlyTotalNet" class="val">₪0</span></div>
+                <div style="flex:1;">
+                    <small style="font-size:0.75rem; color:#8b949e; display:block; text-align:right;">תאריך ירידה בבנק:</small>
+                    <input type="date" id="deductionDate">
                 </div>
             </div>
-            <h4>פילוח הוצאות שנתי לפי קטגוריות:</h4>
-            <div id="yearlyCategoryBreakdown"></div>
+      
+            <select id="type" onchange="toggleInputs()">
+                <option value="variable">📉 הוצאה רגילה</option>
+                <option value="fixed">⏳ הוצאה קבועה (הוראת קבע)</option>
+                <option value="income">📈 הכנסה</option>
+            </select>
+            <div id="fixedOptions" style="display:none; border: 1px solid var(--orange); padding: 10px; border-radius: 10px; margin: 5px 0;">
+                <small>תאריך סיום חיוב (אופציונלי):</small>
+                <input type="date" id="endDate">
+            </div>
+            <button class="btn-main" id="submitEntryBtn" onclick="addEntry()">הוסף תנועה</button>
+            <button id="cancelEntryEditBtn" onclick="resetEntryForm()" style="background:#333; color:white; display:none; font-size:0.8rem;">ביטול עריכה</button>
         </div>
 
-        <div id="adminPanel" style="display:none; margin-top:15px; border-top:1px solid var(--border); padding-top:15px;">
+        <div id="dayAnalysis" class="day-summary">
+            <strong>סיכום ליום שנבחר:</strong>
+            <div id="dayDetails">הזן או בחר תאריך</div>
+        </div>
+
+        <canvas id="mainChart" style="background:#fff; border-radius:18px; margin-bottom:15px;"></canvas>
+
+        <div id="categoryLists"></div>
+
+        <button onclick="exportCSV()" style="margin-top:20px; opacity:0.6;">📥 ייצוא נתונים (CSV)</button>
+        
+        <div id="adminPanel" style="display:none; margin-top:15px; border-top:1px solid #333; padding-top:15px;">
             <button onclick="toggleSection('userManagerSection')" style="background:var(--card); border:1px solid var(--orange); color:var(--orange);">⚙️ ניהול משתמשים והרשאות</button>
+            
             <div id="userManagerSection" class="stat-card" style="display:none; margin-top:10px; border:1px solid #444;">
                 <h4 id="userFormTitle">הוספת משתמש חדש</h4>
                 <input type="text" id="newUsername" placeholder="שם משתמש">
@@ -277,22 +148,14 @@
                 </select>
                 <button id="saveUserBtn" onclick="saveUser()" style="background:var(--green); color:black; font-weight:bold;">שמור משתמש</button>
                 <button id="cancelEditBtn" onclick="resetUserForm()" style="background:#333; color:white; display:none; font-size:0.8rem;">ביטול עריכה</button>
+                
                 <hr style="border-color:#333;">
                 <h4>רשימת משתמשים:</h4>
                 <div id="usersCloudList"></div>
             </div>
+
             <button onclick="resetAll()" style="background:none; color:var(--red); border:none; font-size:0.8rem; margin-top:15px; width:auto;">⚠ מחיקת כל הנתונים</button>
         </div>
-
-        <button onclick="exportCSV()" style="margin-top:20px; opacity:0.6;">📥 ייצוא נתונים כללי (CSV)</button>
-    </div>
-</div>
-
-<div class="modal" id="drillDownModal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeModal()">❌</span>
-        <h3 id="modalTitle">פירוט תנועות</h3>
-        <div id="modalBody"></div>
     </div>
 </div>
 
@@ -303,36 +166,20 @@
 
     const STORAGE_KEY = "king_forever_data";
     const USERS_KEY = "king_users_data";
-    const CATS_KEY = "king_custom_categories";
-    const DAILY_CALC_KEY = "king_daily_calc_data";
 
     let entries = [];
     let localUsers = [];
-    let customCategories = ["דלק", "אוכל", "טיפולים לרכב", "קניות", "בילויים", "כללי"];
-    let dailyCalcEntries = [];
-    
     let viewDate = new Date();
     viewDate.setDate(1); 
     let chart;
     let currentUser = null;
     let isCloudActive = false;
     let isEditingUser = false;
-    let editingEntryId = null;
-    let currentLang = "he";
+    let editingEntryId = null; 
 
     document.getElementById('datePicker').valueAsDate = new Date();
-    document.getElementById('dailyViewDatePicker').valueAsDate = new Date();
-    document.getElementById('calcDatePicker').valueAsDate = new Date();
 
     async function initSystem() {
-        if(localStorage.getItem(CATS_KEY)) {
-            customCategories = JSON.parse(localStorage.getItem(CATS_KEY));
-        } else {
-            localStorage.setItem(CATS_KEY, JSON.stringify(customCategories));
-        }
-        
-        dailyCalcEntries = JSON.parse(localStorage.getItem(DAILY_CALC_KEY)) || [];
-
         localUsers = JSON.parse(localStorage.getItem(USERS_KEY)) || [
             { username: 'kobi', password: '1234', role: 'admin' },
             { username: 'guest', password: '5678', role: 'viewer' }
@@ -341,14 +188,13 @@
 
         try {
             const { data, error } = await _supabase.from('king_users').select('username').limit(1);
-            if (!error) isCloudActive = true;
+            if (!error) {
+                isCloudActive = true;
+            }
         } catch (e) {}
 
         document.getElementById("loadingStatus").style.display = "none";
         document.getElementById("loginForm").style.display = "block";
-        
-        updateCategoryDropdowns();
-        setupNotificationScheduler();
     }
 
     async function login() {
@@ -360,7 +206,9 @@
         let foundUser = null;
         if (isCloudActive) {
             const { data, error } = await _supabase.from('king_users').select('*').eq('username', user).single();
-            if (!error && data && data.password === pass) foundUser = data;
+            if (!error && data && data.password === pass) {
+                foundUser = data;
+            }
         }
 
         if (!foundUser) {
@@ -370,14 +218,9 @@
 
         if (!foundUser) return alert("שם משתמש או סיסמה שגויים");
         currentUser = foundUser;
-        
         document.getElementById("lockScreen").style.display = "none";
         document.getElementById("app").style.display = "block";
-        
-        document.getElementById("menuToggleBtn").style.display = "block";
-        
         document.getElementById("userRoleBadge").innerText = currentUser.username + ` (${currentUser.role === 'admin' ? 'מנהל' : 'צופה'})`;
-        
         if (currentUser.role === 'admin') {
             document.getElementById("inputFormCard").style.display = "block";
             document.getElementById("adminPanel").style.display = "block";
@@ -388,7 +231,6 @@
         }
 
         syncEntries();
-        requestNotificationPermission();
     }
 
     function logout() {
@@ -396,10 +238,6 @@
         entries = [];
         document.getElementById("app").style.display = "none";
         document.getElementById("lockScreen").style.display = "block";
-        
-        document.getElementById("menuToggleBtn").style.display = "none";
-        document.getElementById('sidebarMenu').classList.remove('open');
-        
         document.getElementById("userInput").value = "";
         document.getElementById("passInput").value = "";
         resetUserForm();
@@ -412,16 +250,11 @@
             if (!error && data) {
                 entries = data.map(item => ({
                     id: item.id, desc: item.description, amount: parseFloat(item.amount),
-                    type: item.type, date: item.date, endDate: item.end_date, 
-                    note: item.note || "",
-                    category: item.category || "כללי",
-                    swipeDate: item.swipe_date || item.date,
-                    deductionDate: item.deduction_date || item.date
+                    type: item.type, date: item.date, endDate: item.end_date, note: item.note || "",
+                    category: item.category || "", swipeDate: item.swipe_date || "", deductionDate: item.deduction_date || ""
                 }));
                 render();
                 return;
-            } else if (error) {
-                console.error("שגיאה במשיכת נתונים מ-Supabase:", error);
             }
         }
         entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -438,21 +271,6 @@
         render();
     }
 
-    function toggleSidebar() {
-        document.getElementById('sidebarMenu').classList.toggle('open');
-    }
-
-    function switchView(viewId) {
-        document.querySelectorAll('.app-view').forEach(view => view.classList.remove('active'));
-        document.getElementById(`view-${viewId}`).classList.add('active');
-        toggleSidebar();
-        
-        if(viewId === 'daily-exp') loadDailyViewData();
-        if(viewId === 'daily-profit-calc') updateCalcIncomeDropdown();
-        if(viewId === 'categories-mgmt') renderCategoriesManagement();
-        if(viewId === 'yearly-summary') loadYearlySummaryData();
-    }
-
     async function addEntry() {
         if (currentUser.role !== 'admin') return;
         const desc = document.getElementById('desc').value.trim();
@@ -461,40 +279,28 @@
         const date = document.getElementById('datePicker').value;
         const endDate = document.getElementById('endDate').value;
         const note = document.getElementById('note').value.trim();
-        const category = document.getElementById('entryCategorySelect').value;
-        const sDate = document.getElementById('swipeDate').value || date;
-        const dDate = document.getElementById('deductionDate').value || date;
+        const category = document.getElementById('category').value;
+        const swipeDate = document.getElementById('swipeDate').value;
+        const deductionDate = document.getElementById('deductionDate').value;
 
         if(!desc || !amount) return alert("נא למלא תיאור וסכום תקינים");
-
         if (editingEntryId) {
             if (isCloudActive) {
-                const { error } = await _supabase.from('king_entries').update({
+                await _supabase.from('king_entries').update({
                     description: desc, amount: amount, type: type, date: date, end_date: endDate || null, note: note,
-                    category: category, swipe_date: sDate, deduction_date: dDate
+                    category: category || null, swipe_date: swipeDate || null, deduction_date: deductionDate || null
                 }).eq('id', editingEntryId);
-                
-                if (error) {
-                    console.error("Supabase Update Error:", error);
-                    return alert("❌ השמירה נכשלה בענן!\nהסיבה: " + error.message + "\n\nקרא את ההנחיות למטה כדי להוסיף את העמודות החסרות בלוח הבקרה של Supabase.");
-                }
             }
-            entries = entries.map(e => e.id === editingEntryId ? { id: editingEntryId, desc, amount, type, date, endDate: endDate || null, note, category, swipeDate: sDate, deductionDate: dDate } : e);
+            entries = entries.map(e => e.id === editingEntryId ? { id: editingEntryId, desc, amount, type, date, endDate: endDate || null, note, category, swipeDate: swipeDate || null, deductionDate: deductionDate || null } : e);
             alert("התנועה עודכנה בהצלחה!");
         } else {
             const newId = Date.now();
-            const newItem = { id: newId, desc, amount, type, date, endDate: endDate || null, note, category, swipeDate: sDate, deductionDate: dDate };
-            
+            const newItem = { id: newId, desc, amount, type, date, endDate: endDate || null, note, category, swipeDate: swipeDate || null, deductionDate: deductionDate || null };
             if (isCloudActive) {
-                const { error } = await _supabase.from('king_entries').insert([{
+                await _supabase.from('king_entries').insert([{
                     id: newId, description: desc, amount: amount, type: type, date: date, end_date: endDate || null, note: note,
-                    category: category, swipe_date: sDate, deduction_date: dDate
+                    category: category || null, swipe_date: swipeDate || null, deduction_date: deductionDate || null
                 }]);
-                
-                if (error) {
-                    console.error("Supabase Insert Error:", error);
-                    return alert("❌ השמירה נכשלה בענן!\nהסיבה: " + error.message + "\n\nקרא את ההנחיות למטה כדי להוסיף את העמודות החסרות בלוח הבקרה של Supabase.");
-                }
             }
             entries.push(newItem);
         }
@@ -515,10 +321,10 @@
         document.getElementById("datePicker").value = item.date;
         document.getElementById("note").value = item.note || "";
         document.getElementById("type").value = item.type;
-        document.getElementById("entryCategorySelect").value = item.category || "כללי";
         document.getElementById("endDate").value = item.endDate || "";
-        document.getElementById("swipeDate").value = item.swipeDate || item.date;
-        document.getElementById("deductionDate").value = item.deductionDate || item.date;
+        document.getElementById("category").value = item.category || "";
+        document.getElementById("swipeDate").value = item.swipeDate || "";
+        document.getElementById("deductionDate").value = item.deductionDate || "";
 
         toggleInputs();
         const btn = document.getElementById("submitEntryBtn");
@@ -526,7 +332,6 @@
         btn.style.background = "var(--orange)";
         btn.style.color = "black";
         document.getElementById("cancelEntryEditBtn").style.display = "block";
-        switchView('dashboard');
         document.getElementById("inputFormCard").scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -538,12 +343,13 @@
         document.getElementById("datePicker").valueAsDate = new Date();
         document.getElementById("note").value = "";
         document.getElementById("type").value = "variable";
-        document.getElementById("entryCategorySelect").value = "כללי";
         document.getElementById("endDate").value = "";
+        document.getElementById("category").value = "";
         document.getElementById("swipeDate").value = "";
         document.getElementById("deductionDate").value = "";
         
         toggleInputs();
+
         const btn = document.getElementById("submitEntryBtn");
         btn.innerText = "הוסף תנועה";
         btn.style.background = "var(--blue)";
@@ -555,11 +361,7 @@
         if (currentUser.role !== 'admin') return;
         if (confirm("למחוק את התנועה הזו?")) {
             if (isCloudActive) {
-                const { error } = await _supabase.from('king_entries').delete().eq('id', id);
-                if (error) {
-                    console.error("Supabase Delete Error:", error);
-                    return alert("שגיאה במחיקה מהענן: " + error.message);
-                }
+                await _supabase.from('king_entries').delete().eq('id', id);
             }
             entries = entries.filter(e => e.id !== id);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
@@ -570,115 +372,236 @@
 
     function toggleNote(id) {
         const noteEl = document.getElementById(`note-${id}`);
-        if (noteEl) noteEl.style.display = noteEl.style.display === "block" ? "none" : "block";
+        if (noteEl) {
+            noteEl.style.display = noteEl.style.display === "block" ? "none" : "block";
+        }
     }
 
-    function updateCategoryDropdowns() {
-        const select = document.getElementById('entryCategorySelect');
-        select.innerHTML = '<option value="כללי">בחר קטגוריה (אופציונלי)</option>';
-        customCategories.forEach(cat => {
-            select.innerHTML += `<option value="${cat}">${cat}</option>`;
-        });
-    }
-
-    function renderCategoriesManagement() {
-        const container = document.getElementById('customCategoriesList');
-        container.innerHTML = "";
-        customCategories.forEach((cat, index) => {
-            container.innerHTML += `
-                <div class="entry-row" style="background: var(--card); padding: 10px; border-radius: 8px; margin-bottom: 5px;">
-                    <span>🏷️ ${cat}</span>
-                    <button onclick="deleteCategory(${index})" style="width:auto; padding:3px 8px; background:var(--red); border:none; color:white; border-radius:5px;">מחק</button>
+    function loadUsersList() {
+        const listDiv = document.getElementById("usersCloudList");
+        listDiv.innerHTML = "";
+        localUsers.forEach(u => {
+            listDiv.innerHTML += `
+                <div class="user-item">
+                    <span>👤 <b>${u.username}</b> [${u.role === 'admin' ? 'מנהל' : 'צופה'}]</span>
+                    <div class="user-actions">
+                        <button onclick="editUser('${u.username}')" style="background:var(--blue); color:white; border:none; padding:3px 8px; border-radius:5px;">✏️</button>
+                        ${u.username !== 'kobi' ? `<button onclick="deleteUser('${u.username}')" style="background:var(--red); color:white; border:none; padding:3px 8px; border-radius:5px;">❌</button>` : ''}
+                    </div>
                 </div>
             `;
         });
     }
 
-    function addNewCategory() {
-        const name = document.getElementById('newCategoryInput').value.trim();
-        if(!name) return;
-        if(customCategories.includes(name)) return alert("קטגוריה קיימת כבר");
-        customCategories.push(name);
-        localStorage.setItem(CATS_KEY, JSON.stringify(customCategories));
-        document.getElementById('newCategoryInput').value = "";
-        renderCategoriesManagement();
-        updateCategoryDropdowns();
+    function editUser(username) {
+        const user = localUsers.find(u => u.username === username);
+        if (!user) return;
+
+        isEditingUser = true;
+        document.getElementById("userFormTitle").innerText = `עריכת משתמש: ${username}`;
+        document.getElementById("newUsername").value = user.username;
+        document.getElementById("newUsername").disabled = true;
+        document.getElementById("newPassword").value = user.password;
+        document.getElementById("newRole").value = user.role;
+        
+        const saveBtn = document.getElementById("saveUserBtn");
+        saveBtn.innerText = "עדכן משתמש בענן";
+        saveBtn.style.background = "var(--blue)";
+        saveBtn.style.color = "white";
+        document.getElementById("cancelEditBtn").style.display = "block";
     }
 
-    function deleteCategory(index) {
-        if(confirm("למחק את הקטגוריה הזו?")) {
-            customCategories.splice(index, 1);
-            localStorage.setItem(CATS_KEY, JSON.stringify(customCategories));
-            renderCategoriesManagement();
-            updateCategoryDropdowns();
+    function resetUserForm() {
+        isEditingUser = false;
+        document.getElementById("userFormTitle").innerText = "הוספת משתמש חדש";
+        document.getElementById("newUsername").value = "";
+        document.getElementById("newUsername").disabled = false;
+        document.getElementById("newPassword").value = "";
+        document.getElementById("newRole").value = "viewer";
+        const saveBtn = document.getElementById("saveUserBtn");
+        saveBtn.innerText = "שמור משתמש";
+        saveBtn.style.background = "var(--green)";
+        saveBtn.style.color = "black";
+        document.getElementById("cancelEditBtn").style.display = "none";
+    }
+
+    async function saveUser() {
+        const username = document.getElementById("newUsername").value.trim().toLowerCase();
+        const pass = document.getElementById("newPassword").value.trim();
+        const role = document.getElementById("newRole").value;
+
+        if(!username || !pass) return alert("נא למלא שם וסיסמה");
+        if (isEditingUser) {
+            localUsers = localUsers.map(u => u.username === username ? { username, password: pass, role } : u);
+            localStorage.setItem(USERS_KEY, JSON.stringify(localUsers));
+            if (isCloudActive) {
+                await _supabase.from('king_users').update({ password: pass, role: role }).eq('username', username);
+            }
+            alert(`המשתמש ${username} עודכן בהצלחה!`);
+        } else {
+            if (localUsers.some(u => u.username === username)) return alert("שם משתמש זה כבר קיים");
+            const newUser = { username, password: pass, role };
+            localUsers.push(newUser);
+            localStorage.setItem(USERS_KEY, JSON.stringify(localUsers));
+            if (isCloudActive) {
+                await _supabase.from('king_users').insert([newUser]);
+            }
+            alert(`המשתמש ${username} נוצר בהצלחה!`);
+        }
+        resetUserForm();
+        loadUsersList();
+    }
+
+    function deleteUser(username) {
+        if(confirm(`למחוק את המשתמש ${username}?`)) {
+            localUsers = localUsers.filter(u => u.username !== username);
+            localStorage.setItem(USERS_KEY, JSON.stringify(localUsers));
+            if (isCloudActive) {
+                _supabase.from('king_users').delete().eq('username', username);
+            }
+            if(isEditingUser && document.getElementById("newUsername").value === username) resetUserForm();
+            loadUsersList();
         }
     }
 
-    function openDrillDown(type) {
-        const modal = document.getElementById('drillDownModal');
-        const title = document.getElementById('modalTitle');
-        const body = document.getElementById('modalBody');
-        
+    function render() {
         const m = viewDate.getMonth();
         const y = viewDate.getFullYear();
-        
-        let filtered = entries.filter(e => {
-            const d = new Date(e.date);
-            if(type === 'fixed' && e.type === 'fixed') {
+        document.getElementById('monthTitle').innerText = viewDate.toLocaleString('he-IL', { month: 'long', year: 'numeric' });
+        let inc = 0, varExp = 0, fixExp = 0;
+        const cats = { "הכנסות": [], "הוצאות רגילות": [], "הוצאות קבועות": [] };
+        const dayMap = {};
+        entries.forEach(item => {
+            const d = new Date(item.date);
+            const isRecurring = item.type === 'fixed';
+            const endD = item.endDate ? new Date(item.endDate) : null;
+
+            let active = false;
+            if (isRecurring) {
                 const startOfView = new Date(y, m, 1);
-                const endD = e.endDate ? new Date(e.endDate) : null;
-                return new Date(d.getFullYear(), d.getMonth(), 1) <= startOfView && (!endD || endD >= startOfView);
+                const startOfItem = new Date(d.getFullYear(), d.getMonth(), 1);
+                if (startOfItem <= startOfView) {
+                    if (!endD || endD >= startOfView) active = true;
+                }
+            } else {
+                if (d.getMonth() === m && d.getFullYear() === y) active = true;
             }
-            return e.type === type && d.getMonth() === m && d.getFullYear() === y;
+
+            if (active) {
+                if (item.type === 'income') { inc += item.amount; cats["הכנסות"].push(item); }
+                else if (item.type === 'fixed') { fixExp += item.amount; cats["הוצאות קבועות"].push(item); }
+                else { varExp += item.amount; cats["הוצאות רגילות"].push(item); }
+
+                const dayKey = item.date;
+                if (!dayMap[dayKey]) dayMap[dayKey] = 0;
+                dayMap[dayKey] += (item.type === 'income' ? item.amount : -item.amount);
+            }
         });
 
-        title.innerText = type === 'income' ? '📊 פירוט הכנסות החודש' : type === 'fixed' ? '⏳ פירוט הורדות קבועות' : '📉 פירוט הוצאות שוטפות';
-        
-        body.innerHTML = filtered.length === 0 ? "אין נתונים רשומים בקטגוריה זו לחודש הנוכחי." : filtered.map(i => `
-            <div class="entry-row">
-                <div>
-                    <b>${i.desc}</b> <small>(${i.date})</small> [${i.category || 'כללי'}]
-                    <div style="font-size:0.8rem; color:#8b949e;">${i.note || ''}</div>
-                </div>
-                <span style="font-weight:bold; color:${type==='income'?'var(--green)':'var(--red)'}">₪${i.amount.toLocaleString()}</span>
-            </div>
-        `).join('');
-        
-        modal.style.display = "flex";
+        document.getElementById('sumInc').innerText = "₪" + inc.toLocaleString();
+        document.getElementById('sumVar').innerText = "₪" + varExp.toLocaleString();
+        document.getElementById('sumFixed').innerText = "₪" + fixExp.toLocaleString();
+        document.getElementById('sumTotalExp').innerText = "₪" + (varExp + fixExp).toLocaleString();
+        const net = inc - varExp - fixExp;
+        document.getElementById('netBalance').innerText = "₪" + net.toLocaleString();
+        document.getElementById('netBalance').style.color = net >= 0 ? "var(--green)" : "var(--red)";
+
+        const selectedDate = document.getElementById('datePicker').value;
+        const daySum = dayMap[selectedDate] || 0;
+        document.getElementById('dayDetails').innerText = `${selectedDate}: מאזן יומי של ₪${daySum.toLocaleString()}`;
+
+        renderCategories(cats);
+        updateChart(inc, varExp, fixExp);
     }
 
-    function closeModal() {
-        document.getElementById('drillDownModal').style.display = "none";
+    function renderCategories(cats) {
+        const container = document.getElementById('categoryLists');
+        container.innerHTML = "";
+        
+        for (let name in cats) {
+            if (cats[name].length === 0) continue;
+            const sum = cats[name].reduce((a, b) => a + b.amount, 0);
+            container.innerHTML += `
+                <div class="category-group">
+                    <div class="category-header" onclick="toggleCat(this)">
+                        <span>${name} (${cats[name].length})</span>
+                        <b>₪${sum.toLocaleString()}</b>
+                    </div>
+                    <div class="category-content">
+                        ${cats[name].map(i => `
+                            <div class="entry-row">
+                                <div class="entry-clickable" onclick="toggleNote(${i.id})">
+                                    <div style="display:flex; justify-content:space-between; padding-left:10px;">
+                                        <span>${i.desc} 
+                                        <small style="color:#8b949e; font-size:0.75rem;">(${i.date})</small></span>
+                                        <span style="font-weight:bold;">₪${i.amount.toLocaleString()}</span>
+                                    </div>
+                                    <div id="note-${i.id}" class="note-box">
+                                        ${i.category ? `🏷️ <b>קטגוריה:</b> ${i.category}<br>` : ''}
+                                        ${i.swipeDate ? `💳 <b>תאריך גיהוץ:</b> ${i.swipeDate}<br>` : ''}
+                                        ${i.deductionDate ? `🏦 <b>תאריך ירידה:</b> ${i.deductionDate}<br>` : ''}
+                                        📝 <b>הערה:</b> ${i.note ? i.note : "אין הערות רשומות לתנועה זו."}
+                                    </div>
+                                </div>
+                                ${currentUser && currentUser.role === "admin" ?
+                                `
+                                <div class="actions-cell">
+                                    <button onclick="startEditEntry(${i.id})" title="ערוך">✏️</button>
+                                    <button onclick="deleteItem(${i.id})" title="מחק">🗑️</button>
+                                </div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }
     }
 
-    function performSearch() {
-        const query = document.getElementById('searchInput').value.trim().toLowerCase();
-        const resultsContainer = document.getElementById('searchResults');
-        if(!query) { resultsContainer.innerHTML = ""; return; }
-        
-        let filtered = entries.filter(e => e.desc.toLowerCase().includes(query) || (e.note && e.note.toLowerCase().includes(query)) || (e.category && e.category.toLowerCase().includes(query)));
-        
-        resultsContainer.innerHTML = filtered.length === 0 ? "לא נמצאו תוצאות תואמות" : filtered.map(i => `
-            <div class="stat-card">
-                <div style="display:flex; justify-content:space-between;">
-                    <strong>${i.desc} (${i.date})</strong>
-                    <span style="color:${i.type==='income'?'var(--green)':'var(--red)'}">₪${i.amount}</span>
-                </div>
-                <small style="color:var(--orange)">סוג: ${i.type} | קטגוריה: ${i.category || 'כללי'}</small>
-                ${i.note ? `<p style="margin:5px 0 0 0; font-size:0.85rem; opacity:0.8;">📝 ${i.note}</p>` : ''}
-            </div>
-        `).join('');
+    function toggleCat(el) {
+        const content = el.nextElementSibling;
+        content.style.display = content.style.display === "block" ? "none" : "block";
     }
 
-    function loadDailyViewData() {
-        const targetDate = document.getElementById('dailyViewDatePicker').value;
-        const container = document.getElementById('dailyEntriesContainer');
-        const details = document.getElementById('dayDetails');
-        
-        let dayFiltered = entries.filter(e => e.date === targetDate);
-        let net = dayFiltered.reduce((sum, e) => sum + (e.type === 'income' ? e.amount : -e.amount), 0);
-        
-        details.innerText = `${targetDate}: מאזן יומי כולל של ₪${net.toLocaleString()}`;
-        
-        container.innerHTML = dayFiltered.length === 0 ? "<p>אין פעילויות רשומות ביום זה.</p>" : dayFiltered.map(i => `
-            <div class="entry-row" style="background:var(--
+    function toggleSection(id) {
+        const el = document.getElementById(id);
+        el.style.display = el.style.display === "block" ? "none" : "block";
+    }
+
+    function updateChart(inc, vExp, fExp) {
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        if(chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['הכנסות', 'הוצאות שוטפות', 'הוצאות קבועות'],
+                datasets: [{ data: [inc, vExp, fExp], backgroundColor: ['#00e676', '#448aff', '#ffd740'], borderWidth: 0 }]
+            },
+            options: { plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    async function resetAll() { 
+        if (currentUser.role !== 'admin') return;
+        if(confirm("למחוק את כל הנתונים לצמיתות?")) { 
+            if (isCloudActive) {
+                await _supabase.from('king_entries').delete().neq('id', 0);
+            }
+            entries = [];
+            localStorage.removeItem(STORAGE_KEY);
+            render();
+        } 
+    }
+
+    function exportCSV() {
+        let csv = "Date,Desc,Type,Amount,EndDate,Category,SwipeDate,DeductionDate,Note\n";
+        entries.forEach(e => csv += `${e.date},${e.desc},${e.type},${e.amount},${e.endDate||''},${e.category||''},${e.swipeDate||''},${e.deductionDate||''},${e.note||''}\n`);
+        const blob = new Blob([csv], {type: 'text/csv'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'budget_king.csv'; a.click();
+    }
+
+    initSystem();
+</script>
+</body>
+</html>
+
