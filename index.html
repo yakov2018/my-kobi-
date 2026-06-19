@@ -73,6 +73,9 @@
         .sidebar-item:hover { background: rgba(255,255,255,0.06); }
         .sidebar-item.active { background: rgba(68, 138, 255, 0.15); color: var(--blue); }
 
+        .sidebar-stat-row { transition: background 0.2s ease; padding: 4px 6px; border-radius: 6px; }
+        .sidebar-stat-row:hover { background: rgba(255, 255, 255, 0.08); }
+
         .accordion-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: none; border: none; text-align: right; padding: 12px 15px; color: var(--text); font-weight: 500; cursor: pointer; margin: 0; }
         .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: rgba(0,0,0,0.15); border-radius: 10px; padding: 0 15px; }
         .switch-container { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 0.85rem; }
@@ -133,7 +136,6 @@
 
     <div id="app" style="display:none;">
         
-        <!-- VIEW 1: Main Interactive Dashboard -->
         <div id="view-dashboard" class="app-view active">
             <div class="nav-months">
                 <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
@@ -149,8 +151,8 @@
                 </div>
                 <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
                 <div class="grid-3">
-                    <div style="grid-column: span 2; text-align: right;">
-                        <span class="label">סה"כ הוצאות כללי</span>
+                    <div onclick="openDrillDown('month_exp')" style="grid-column: span 2; text-align: right; cursor:pointer;">
+                        <span class="label">סה"כ הוצאות כללי (לחץ לפירוט)</span>
                         <span id="sumTotalExp" class="val">₪0</span>
                     </div>
                     <div>
@@ -160,7 +162,6 @@
                 </div>
             </div>
 
-            <!-- Special Daily Calculator Widget with full edit functionality -->
             <div id="dailyCalcWidget" class="glass-card" style="border: 1px solid var(--orange); background: rgba(255, 215, 64, 0.05);">
                 <h3 style="margin: 0 0 5px 0; font-size:1.1rem; color: var(--orange);">🧮 מחשבון פירוט יומי מיוחד</h3>
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
@@ -228,7 +229,6 @@
             </div>
         </div>
 
-        <!-- VIEW 2: Calendar System -->
         <div id="view-calendar" class="app-view">
             <div class="nav-months">
                 <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
@@ -255,9 +255,8 @@
             </div>
         </div>
 
-        <!-- VIEW 3: Custom Categories & Global Search -->
         <div id="view-categories" class="app-view">
-            <h3 style="margin-top:0;">🏷️ ניהול קטגוריות מותאמות אישית</h3>
+            <h3 style="margin-top:0;">🏷️ ניה鍮 קטגוריות מותאמות אישית</h3>
             <div id="categoriesAdminInput" class="glass-card" style="display:none;">
                 <input type="text" id="newCategoryInput" placeholder="שם קטגוריה חדשה...">
                 <button class="btn-main" onclick="addNewCategory()">צור קטגוריה חדשה</button>
@@ -274,7 +273,6 @@
             </div>
         </div>
 
-        <!-- VIEW 4: Executive View Dashboard Layout -->
         <div id="view-executive" class="app-view">
             <h3 style="margin-top:0; text-align:center; color:var(--blue);">📊 דשבורד מנהלים לסיכום וצפייה בלבד</h3>
             
@@ -314,7 +312,6 @@
             </div>
         </div>
 
-        <!-- VIEW 5: User Management Panel -->
         <div id="view-users" class="app-view">
             <h3 style="margin-top:0;">👑 ניהול משתמשים והרשאות ענן</h3>
             <div class="glass-card" style="border: 1px solid var(--green);">
@@ -337,7 +334,6 @@
             </div>
         </div>
 
-        <!-- VIEW 6: General Annual YTD Summary View -->
         <div id="view-ytd" class="app-view">
             <h3 style="margin-top:0;">📊 סיכום שנתי מקיף (YTD) - <span id="yearlyTitleYear">2026</span></h3>
             <div class="glass-card">
@@ -353,20 +349,47 @@
     </div>
 </div>
 
-<!-- SIDEBAR HAMBURGER NAVIGATION SYSTEM -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebarMenu">
     <h3 style="margin-top:0; border-bottom:1px solid var(--border); padding-bottom:10px;">🧭 ניווט מהיר</h3>
     
     <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 0.85rem; border: 1px solid var(--border);">
-        <b style="color: var(--blue); display:block; margin-bottom:8px; font-size: 0.9rem;">📊 מדדי תזרים בזק:</b>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>📈 הכנסות יומיות (היום):</span><span id="sbTodayInc" style="color:var(--green); font-weight:bold;">₪0</span></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>📉 הוצאות יומיות (היום):</span><span id="sbTodayExp" style="color:var(--red); font-weight:bold;">₪0</span></div>
+        <b style="color: var(--blue); display:block; margin-bottom:8px; font-size: 0.9rem;">📊 מדדי תזרים בזק (לחץ לפירוט):</b>
+        
+        <div onclick="openDrillDown('today_inc')" class="sidebar-stat-row" style="display:flex; justify-content:space-between; margin-bottom:4px; cursor:pointer;">
+            <span>📈 הכנסות יומיות:</span>
+            <span id="sbTodayInc" style="color:var(--green); font-weight:bold;">₪0</span>
+        </div>
+        <div onclick="openDrillDown('today_exp')" class="sidebar-stat-row" style="display:flex; justify-content:space-between; margin-bottom:4px; cursor:pointer;">
+            <span>📉 הוצאות יומיות:</span>
+            <span id="sbTodayExp" style="color:var(--red); font-weight:bold;">₪0</span>
+        </div>
+        
         <hr style="border-color: rgba(255,255,255,0.1); margin: 6px 0;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>💰 הכנסות חודשיות:</span><span id="sbMonthInc" style="color:var(--green); font-weight:bold;">₪0</span></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>💸 הוצאות חודשיות:</span><span id="sbMonthExp" style="color:var(--red); font-weight:bold;">₪0</span></div>
+        
+        <div onclick="openDrillDown('income')" class="sidebar-stat-row" style="display:flex; justify-content:space-between; margin-bottom:4px; cursor:pointer;">
+            <span>💰 הכנסות חודשיות:</span>
+            <span id="sbMonthInc" style="color:var(--green); font-weight:bold;">₪0</span>
+        </div>
+        <div onclick="openDrillDown('month_exp')" class="sidebar-stat-row" style="display:flex; justify-content:space-between; margin-bottom:4px; cursor:pointer;">
+            <span>💸 הוצאות חודשיות:</span>
+            <span id="sbMonthExp" style="color:var(--red); font-weight:bold;">₪0</span>
+        </div>
+        <div onclick="openDrillDown('fixed')" class="sidebar-stat-row" style="display:flex; justify-content:space-between; margin-bottom:4px; cursor:pointer;">
+            <span>⏳ הוצאות קבועות:</span>
+            <span id="sbMonthFixed" style="color:var(--orange); font-weight:bold;">₪0</span>
+        </div>
+        <div onclick="openDrillDown('variable')" class="sidebar-stat-row" style="display:flex; justify-content:space-between; margin-bottom:4px; cursor:pointer;">
+            <span>📉 הוצאות שוטפות:</span>
+            <span id="sbMonthVar" style="color:var(--red); font-weight:bold;">₪0</span>
+        </div>
+        
         <hr style="border-color: rgba(255,255,255,0.1); margin: 6px 0;">
-        <div style="display:flex; justify-content:space-between;"><span>🌍 מאזן שנתי גלובלי:</span><span id="sbYearlyNet" style="font-weight:bold;">₪0</span></div>
+        
+        <div style="display:flex; justify-content:space-between;">
+            <span>🌍 מאזן שנתי גלובלי:</span>
+            <span id="sbYearlyNet" style="font-weight:bold;">₪0</span>
+        </div>
     </div>
 
     <div class="sidebar-item active" id="sb-dashboard" onclick="navigate('dashboard')">🏠 דאשבורד ראשי</div>
@@ -415,7 +438,6 @@
     </div>
 </div>
 
-<!-- FLOATING MODAL 1: Unified Clean Entry Dialog -->
 <div class="modal" id="entryFormModal">
     <div class="modal-content">
         <button class="close-modal" onclick="closeEntryModal()">❌</button>
@@ -448,7 +470,6 @@
     </div>
 </div>
 
-<!-- FLOATING MODAL 2: Excel Interactive Row Manager -->
 <div class="modal" id="rowDetailsModal">
     <div class="modal-content">
         <button class="close-modal" onclick="closeRowModal()">❌</button>
@@ -461,11 +482,10 @@
     </div>
 </div>
 
-<!-- FLOATING MODAL 3: Original Functional Drilldown -->
 <div class="modal" id="drillDownModal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 550px;">
         <button class="close-modal" onclick="closeDrillModal()">❌</button>
-        <h3 id="modalTitle" style="margin-top:0;">פירוט קטגוריות</h3>
+        <h3 id="modalTitle" style="margin-top:0; color: var(--blue);">פירוט קטגוריות</h3>
         <div id="modalBody"></div>
     </div>
 </div>
@@ -493,7 +513,7 @@
     let isCloudActive = false;
     let isEditingUser = false;
     let editingEntryId = null;
-    let editingCalcId = null; // Track item being edited in daily calculator
+    let editingCalcId = null; 
     let selectedCalDateStr = "";
     let selectedRowItemGlobal = null;
 
@@ -838,17 +858,17 @@
 
         updateChart(inc, vExp, fExp);
         renderDailyCalcRows();
-        updateSidebarStatsLive(inc, vExp + fExp);
+        updateSidebarStatsLive(inc, vExp, fExp);
     }
 
-    function updateSidebarStatsLive(monthInc, monthExp) {
+    function updateSidebarStatsLive(monthInc, monthVar, monthFixed) {
         const todayStr = new Date().toISOString().split('T')[0];
         let dInc = 0, dExp = 0;
         let yInc = 0, yExp = 0;
         const currentYear = new Date().getFullYear();
 
         entries.forEach(e => {
-            if(e.date === todayStr) {
+            if(e.date === selectedCalDateStr) {
                 if(e.type === 'income') dInc += e.amount;
                 else dExp += e.amount;
             }
@@ -858,18 +878,28 @@
             }
         });
 
-        document.getElementById('sbTodayInc').innerText = "₪" + dInc.toLocaleString();
-        document.getElementById('sbTodayExp').innerText = "₪" + dExp.toLocaleString();
-        document.getElementById('sbMonthInc').innerText = "₪" + monthInc.toLocaleString();
-        document.getElementById('sbMonthExp').innerText = "₪" + monthExp.toLocaleString();
-        document.getElementById('sbYearlyNet').innerText = "₪" + (yInc - yExp).toLocaleString();
-        document.getElementById('sbYearlyNet').style.color = (yInc - yExp) >= 0 ? "var(--green)" : "var(--red)";
+        if(document.getElementById('sbTodayInc')) document.getElementById('sbTodayInc').innerText = "₪" + dInc.toLocaleString();
+        if(document.getElementById('sbTodayExp')) document.getElementById('sbTodayExp').innerText = "₪" + dExp.toLocaleString();
+        if(document.getElementById('sbMonthInc')) document.getElementById('sbMonthInc').innerText = "₪" + monthInc.toLocaleString();
+        if(document.getElementById('sbMonthExp')) document.getElementById('sbMonthExp').innerText = "₪" + (monthVar + monthFixed).toLocaleString();
+        if(document.getElementById('sbMonthFixed')) document.getElementById('sbMonthFixed').innerText = "₪" + monthFixed.toLocaleString();
+        if(document.getElementById('sbMonthVar')) document.getElementById('sbMonthVar').innerText = "₪" + monthVar.toLocaleString();
+        
+        if(document.getElementById('sbYearlyNet')) {
+            document.getElementById('sbYearlyNet').innerText = "₪" + (yInc - yExp).toLocaleString();
+            document.getElementById('sbYearlyNet').style.color = (yInc - yExp) >= 0 ? "var(--green)" : "var(--red)";
+        }
     }
 
     function onCalcDateChange() {
         selectedCalDateStr = document.getElementById('calcDateInput').value;
         resetCalcForm();
         renderDailyCalcRows();
+        updateSidebarStatsLive(
+            parseFloat(document.getElementById('sumInc').innerText.replace(/[^\d.-]/g, '')) || 0,
+            parseFloat(document.getElementById('sumVar').innerText.replace(/[^\d.-]/g, '')) || 0,
+            parseFloat(document.getElementById('sumFixed').innerText.replace(/[^\d.-]/g, '')) || 0
+        );
     }
 
     function renderExecutiveDashboard() {
@@ -943,6 +973,7 @@
         resetCalcForm();
         renderCalendarView();
         renderDailyCalcRows();
+        if(document.getElementById('sidebarMenu').classList.contains('open')) toggleSidebar();
     }
 
     function loadSelectedDayData() {
@@ -966,16 +997,15 @@
         if(!desc || !amount) return alert("אנא מלא שדות תקינים");
         
         if (editingCalcId) {
-            // Update existing calculator item
             dailyCalcEntries = dailyCalcEntries.map(e => e.id === editingCalcId ? { ...e, desc, amount, type, note } : e);
         } else {
-            // Insert brand new row
             dailyCalcEntries.push({ id: Date.now(), date: selectedCalDateStr, desc, amount, type, note });
         }
         
         localStorage.setItem(DAILY_CALC_KEY, JSON.stringify(dailyCalcEntries));
         resetCalcForm();
         renderDailyCalcRows();
+        render();
     }
 
     function editDailyCalcItem(id) {
@@ -1033,6 +1063,7 @@
         localStorage.setItem(DAILY_CALC_KEY, JSON.stringify(dailyCalcEntries));
         if(editingCalcId === id) resetCalcForm();
         renderDailyCalcRows();
+        render();
     }
 
     async function injectDailyProfitToBudget() {
@@ -1057,23 +1088,80 @@
         render();
     }
 
+    /* MASTER DRILLDOWN FILTER ENGINE (FIXED & ALIGNED TO DASHBOARD STATS) */
     function openDrillDown(type) {
-        const m = viewDate.getMonth(); const y = viewDate.getFullYear();
-        let filtered = entries.filter(e => {
-            if(type === 'fixed' && e.type === 'fixed') {
-                const sv = new Date(y, m, 1);
-                return new Date(e.date) <= sv && (!e.endDate || new Date(e.endDate) >= sv);
+        const m = viewDate.getMonth(); 
+        const y = viewDate.getFullYear();
+        let title = "";
+        
+        if (type === 'income') title = "📊 פירוט הכנסות חודשיות";
+        else if (type === 'variable') title = "📉 פירוט הוצאות שוטפות/משתנות";
+        else if (type === 'fixed') title = "⏳ פירוט הוצאות קבועות רשומות";
+        else if (type === 'month_exp') title = "💸 פירוט כל ההוצאות החודשיות";
+        else if (type === 'today_inc') title = `📈 הכנסות ליום שנבחר: ${selectedCalDateStr}`;
+        else if (type === 'today_exp') title = `📉 הוצאות ליום שנבחר: ${selectedCalDateStr}`;
+
+        let filtered = [];
+        
+        entries.forEach(item => {
+            const d = new Date(item.date);
+            let isMonthlyActive = false;
+            
+            if (item.type === 'fixed') {
+                const startView = new Date(y, m, 1);
+                if (new Date(d.getFullYear(), d.getMonth(), 1) <= startView) {
+                    if (!item.endDate || new Date(item.endDate) >= startView) isMonthlyActive = true;
+                }
+            } else {
+                if (d.getMonth() === m && d.getFullYear() === y) isMonthlyActive = true;
             }
-            return e.type === type && new Date(e.date).getMonth() === m && new Date(e.date).getFullYear() === y;
+            
+            let isDailyActive = (item.date === selectedCalDateStr);
+
+            if (type === 'income' && isMonthlyActive && item.type === 'income') filtered.push(item);
+            else if (type === 'variable' && isMonthlyActive && item.type === 'variable') filtered.push(item);
+            else if (type === 'fixed' && isMonthlyActive && item.type === 'fixed') filtered.push(item);
+            else if (type === 'month_exp' && isMonthlyActive && (item.type === 'variable' || item.type === 'fixed')) filtered.push(item);
+            else if (type === 'today_inc' && isDailyActive && item.type === 'income') filtered.push(item);
+            else if (type === 'today_exp' && isDailyActive && (item.type === 'variable' || item.type === 'fixed')) filtered.push(item);
         });
-        document.getElementById('modalTitle').innerText = 'פירוט תנועות חודשי';
-        document.getElementById('modalBody').innerHTML = filtered.length === 0 ? "אין נתונים." : filtered.map(i => `
-            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);">
-                <span><b>${i.desc}</b> (${i.date})</span><span>₪${i.amount.toLocaleString()}</span>
-            </div>
-        `).join('');
+
+        const body = document.getElementById('modalBody');
+        document.getElementById('modalTitle').innerText = title;
+        
+        if (filtered.length === 0) {
+            body.innerHTML = `<p style="text-align:center; opacity:0.6; padding:20px 0;">אין נתונים רשומים בקבוצה זו לחודש/יום שנבחרו.</p>`;
+        } else {
+            body.innerHTML = `
+                <div class="excel-table-wrapper">
+                    <table class="excel-table">
+                        <thead>
+                            <tr>
+                                <th>תאריך</th>
+                                <th>תיאור</th>
+                                <th>קטגוריה</th>
+                                <th>סכום</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filtered.map(i => `
+                                <tr onclick="closeDrillModal(); openRowDetails(${i.id});">
+                                    <td>${i.date.substring(5)}</td>
+                                    <td style="font-weight:600;">${i.desc}</td>
+                                    <td><span style="font-size:0.75rem; background:rgba(255,255,255,0.06); padding:3px 7px; border-radius:5px;">${i.category}</span></td>
+                                    <td style="color:${i.type==='income'?'var(--green)':'var(--red)'}; font-weight:bold;">₪${i.amount.toLocaleString()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        if(document.getElementById('sidebarMenu').classList.contains('open')) toggleSidebar();
         document.getElementById('drillDownModal').style.display = 'flex';
     }
+    
     function closeDrillModal() { document.getElementById('drillDownModal').style.display = 'none'; }
 
     function performSearch() {
