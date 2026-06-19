@@ -30,7 +30,6 @@
             --glass: rgba(0, 0, 0, 0.02);
         }
         
-        /* Ambient Background Animation */
         body { 
             font-family: 'system-ui', -apple-system, sans-serif; 
             background: var(--bg-gradient); 
@@ -64,7 +63,6 @@
         .nav-months { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--glass); border-radius: 14px; padding: 6px; border: 1px solid var(--border); }
         .nav-btn { width: auto; padding: 6px 22px; background: rgba(255,255,255,0.08); margin: 0; color: var(--text); border: none; }
 
-        /* Elegant Hamburger Sidebar Layout */
         .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .menu-btn { background: none; border: none; font-size: 1.7rem; color: var(--text); cursor: pointer; width: auto; padding: 5px 10px; margin: 0; }
         
@@ -75,12 +73,10 @@
         .sidebar-item:hover { background: rgba(255,255,255,0.06); }
         .sidebar-item.active { background: rgba(68, 138, 255, 0.15); color: var(--blue); }
 
-        /* Accordion for App Settings inside Sidebar */
         .accordion-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: none; border: none; text-align: right; padding: 12px 15px; color: var(--text); font-weight: 500; cursor: pointer; margin: 0; }
         .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: rgba(0,0,0,0.15); border-radius: 10px; padding: 0 15px; }
         .switch-container { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 0.85rem; }
         
-        /* Modern Toggle Switch */
         .switch { position: relative; display: inline-block; width: 42px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .3s; border-radius: 24px; }
@@ -88,7 +84,6 @@
         input:checked + .slider { background-color: var(--green); }
         input:checked + .slider:before { transform: translateX(18px); }
 
-        /* Presentation Excel Table Layout */
         .excel-table-wrapper { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); }
         .excel-table { width: 100%; border-collapse: collapse; text-align: right; font-size: 0.9rem; }
         .excel-table th { background: rgba(255,255,255,0.05); padding: 12px 10px; border-bottom: 2px solid var(--border); color: #8b949e; font-weight: 600; }
@@ -96,7 +91,6 @@
         .excel-table tr:nth-child(even) { background: rgba(255,255,255,0.01); }
         .excel-table tr:hover { background: rgba(255,255,255,0.03); }
         
-        /* Calendar Framework */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
         .calendar-day-header { text-align: center; font-size: 0.8rem; font-weight: bold; color: #8b949e; padding: 5px 0; }
         .calendar-day { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 10px; min-height: 58px; padding: 5px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: all 0.2s ease; }
@@ -105,13 +99,11 @@
         .day-num { font-size: 0.85rem; font-weight: bold; }
         .day-bal { font-size: 0.65rem; text-align: center; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* Executive View Dashboard Layout */
         .kpi-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .kpi-card { padding: 15px; border-radius: 14px; text-align: center; border: 1px solid var(--border); color: white; }
         .kpi-inc { background: linear-gradient(135deg, #00b0ff, #00e676); }
         .kpi-exp { background: linear-gradient(135deg, #f50057, #ff5252); }
 
-        /* Dialog Floating Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 5000; justify-content: center; align-items: center; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
         .modal-content { background: var(--sidebar-bg); width: 92%; max-width: 500px; padding: 25px; border-radius: 22px; max-height: 85%; overflow-y: auto; position: relative; border: 1px solid var(--border); box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
         .close-modal { position: absolute; top: 15px; left: 15px; cursor: pointer; font-size: 1.4rem; border: none; background: none; color: var(--text); }
@@ -124,13 +116,11 @@
 <body>
 
 <div class="container">
-    <!-- Top Bar System -->
     <div class="header-bar">
         <button class="menu-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" style="display:none;">☰</button>
         <h2 id="mainTitle" style="margin:0; font-size: 1.3rem; letter-spacing: 0.5px; text-align: center; flex-grow:1;">👑 ניהול פיננסי KING</h2>
     </div>
 
-    <!-- Secure Gate GateKeeper Screen -->
     <div id="lockScreen" class="glass-card" style="text-align: center; margin-top: 40px; max-width: 450px; margin-left: auto; margin-right: auto;">
         <h3 style="margin-top:0; font-size: 1.3rem;">✨ כניסה למערכת מאובטחת</h3>
         <p id="loadingStatus" style="font-size:0.9rem; color:var(--orange);">יוצר קשר מאובטח עם השרת...</p>
@@ -141,7 +131,6 @@
         </div>
     </div>
 
-    <!-- Authentic Complete Core Engine -->
     <div id="app" style="display:none;">
         
         <!-- VIEW 1: Main Interactive Dashboard -->
@@ -167,6 +156,42 @@
                     <div>
                         <span class="label">יתרה נטו</span>
                         <span id="netBalance" class="val" style="font-size:1.35rem;">₪0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Daily Calculator Widget with full edit functionality -->
+            <div id="dailyCalcWidget" class="glass-card" style="border: 1px solid var(--orange); background: rgba(255, 215, 64, 0.05);">
+                <h3 style="margin: 0 0 5px 0; font-size:1.1rem; color: var(--orange);">🧮 מחשבון פירוט יומי מיוחד</h3>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 0.85rem; opacity: 0.8;">תאריך עבודה:</span>
+                    <input type="date" id="calcDateInput" onchange="onCalcDateChange()" style="width:auto; padding:5px 10px; margin:0; font-size:0.85rem; border-radius:8px;">
+                </div>
+                
+                <div id="calcAdminFields" style="display:none; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 12px; margin-bottom: 12px;">
+                    <input type="text" id="calcDesc" placeholder="תיאור קצר לפעולה (סושי, טיפים, דלק...)">
+                    <div style="display:flex; gap:6px;">
+                        <input type="number" id="calcAmount" placeholder="סכום">
+                        <select id="calcType">
+                            <option value="income">📈 הכנסה יומית</option>
+                            <option value="expense">📉 הוצאה יומית</option>
+                        </select>
+                    </div>
+                    <input type="text" id="calcNote" placeholder="הערות נוספות (אופציונלי)">
+                    <button id="calcSubmitBtn" class="btn-main" onclick="addDailyCalcItem()" style="background: var(--orange); color: black; font-size:0.9rem; margin-top:6px;">שמור שורה במחשבון</button>
+                    <button id="calcCancelEditBtn" onclick="resetCalcForm()" style="background:#333; color:white; font-size:0.8rem; margin-top:3px; display:none; padding:5px;">ביטול עריכת שורה</button>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;">
+                    <h4 style="margin: 0 0 8px 0; font-size:0.85rem; color:#8b949e;">📋 שורות רשומות במחשבון ליום זה:</h4>
+                    <div id="dailyCalcRows"></div>
+                    <hr style="border-color: var(--border); margin:12px 0;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size:0.95rem;">
+                        <span>רווח יומי נטו במחשבון:</span>
+                        <span id="dailyCalcNetTotal" style="color: var(--green);">₪0</span>
+                    </div>
+                    <div id="calcAdminInjectContainer" style="display:none;">
+                        <button class="btn-main" onclick="injectDailyProfitToBudget()" style="background: var(--green); color: black; margin-top: 12px; font-size:0.9rem;">➕ הזרם והחלף שורה תחתונה בתקציב החודשי</button>
                     </div>
                 </div>
             </div>
@@ -198,17 +223,16 @@
                 </div>
             </div>
 
-            <!-- Chart Relocated to Absolute Bottom of View -->
             <div class="glass-card">
                 <canvas id="mainChart" style="background:#fff; border-radius:14px; max-height:220px;"></canvas>
             </div>
         </div>
 
-        <!-- VIEW 2: Calendar & Historical Multi-Calculator -->
+        <!-- VIEW 2: Calendar System -->
         <div id="view-calendar" class="app-view">
             <div class="nav-months">
                 <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
-                <h3 id="calendarMonthTitle" style="margin:0; font-size:1.1rem;">לוח שנה ומחשבון</h3>
+                <h3 id="calendarMonthTitle" style="margin:0; font-size:1.1rem;">לוח שנה פיננסי</h3>
                 <button class="nav-btn" onclick="changeMonth(1)">▶</button>
             </div>
 
@@ -224,41 +248,9 @@
                 </div>
                 <div class="calendar-grid" id="calendarDaysGrid"></div>
             </div>
-
-            <!-- Daily Live Calculator Workspace -->
-            <div id="dailyCalcWidget" class="glass-card" style="border: 1px solid var(--orange);">
-                <h3 style="margin: 0 0 5px 0; font-size:1.1rem;">🧮 מחשבון פירוט יומי היסטורי</h3>
-                <p style="font-size: 0.8rem; opacity: 0.8; margin:0 0 12px 0;">תאריך מסומן: <b id="calcSelectedDateLabel" style="color:var(--orange)">בחר יום בלוח</b></p>
-                
-                <div id="calcAdminFields" style="display:none; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 12px; margin-bottom: 12px;">
-                    <input type="text" id="calcDesc" placeholder="תיאור קצר לפעולה (סושי, טיפים, דלק...)">
-                    <div style="display:flex; gap:6px;">
-                        <input type="number" id="calcAmount" placeholder="סכום">
-                        <select id="calcType">
-                            <option value="income">📈 הכנסה יומית</option>
-                            <option value="expense">📉 הוצאה יומית</option>
-                        </select>
-                    </div>
-                    <input type="text" id="calcNote" placeholder="הערות נוספות (אופציונלי)">
-                    <button class="btn-main" onclick="addDailyCalcItem()" style="background: var(--orange); color: black; font-size:0.9rem; margin-top:6px;">שמור שורה במחשבון</button>
-                </div>
-
-                <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;">
-                    <h4 style="margin: 0 0 8px 0; font-size:0.85rem; color:#8b949e;">📋 רשימת סעיפים שנרשמו ביום זה במחשבון:</h4>
-                    <div id="dailyCalcRows"></div>
-                    <hr style="border-color: var(--border); margin:12px 0;">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size:0.95rem;">
-                        <span>רווח יומי נטו במחשבון:</span>
-                        <span id="dailyCalcNetTotal" style="color: var(--green);">₪0</span>
-                    </div>
-                    <div id="calcAdminInjectContainer" style="display:none;">
-                        <button class="btn-main" onclick="injectDailyProfitToBudget()" style="background: var(--green); color: black; margin-top: 12px; font-size:0.9rem;">➕ הזרם והחלף שורה תחתונה בתקציב החודשי</button>
-                    </div>
-                </div>
-            </div>
             
             <div class="glass-card">
-                <h4 style="margin:0 0 10px 0; font-size:0.95rem;">📅 תנועות תקציב קבועות/רשומות ליום זה</h4>
+                <h4 style="margin:0 0 10px 0; font-size:0.95rem;">📅 תנועות תקציב קבועות/רשומות ליום שנבחר</h4>
                 <div id="dailyEntriesContainer" style="font-size:0.9rem;"></div>
             </div>
         </div>
@@ -282,7 +274,7 @@
             </div>
         </div>
 
-        <!-- VIEW 4: High-End Executive Presentation Dashboard (Read-Only View) -->
+        <!-- VIEW 4: Executive View Dashboard Layout -->
         <div id="view-executive" class="app-view">
             <h3 style="margin-top:0; text-align:center; color:var(--blue);">📊 דשבורד מנהלים לסיכום וצפייה בלבד</h3>
             
@@ -322,7 +314,7 @@
             </div>
         </div>
 
-        <!-- VIEW 5: User Management Panel (Admin Only) -->
+        <!-- VIEW 5: User Management Panel -->
         <div id="view-users" class="app-view">
             <h3 style="margin-top:0;">👑 ניהול משתמשים והרשאות ענן</h3>
             <div class="glass-card" style="border: 1px solid var(--green);">
@@ -365,8 +357,20 @@
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebarMenu">
     <h3 style="margin-top:0; border-bottom:1px solid var(--border); padding-bottom:10px;">🧭 ניווט מהיר</h3>
+    
+    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 0.85rem; border: 1px solid var(--border);">
+        <b style="color: var(--blue); display:block; margin-bottom:8px; font-size: 0.9rem;">📊 מדדי תזרים בזק:</b>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>📈 הכנסות יומיות (היום):</span><span id="sbTodayInc" style="color:var(--green); font-weight:bold;">₪0</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>📉 הוצאות יומיות (היום):</span><span id="sbTodayExp" style="color:var(--red); font-weight:bold;">₪0</span></div>
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 6px 0;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>💰 הכנסות חודשיות:</span><span id="sbMonthInc" style="color:var(--green); font-weight:bold;">₪0</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>💸 הוצאות חודשיות:</span><span id="sbMonthExp" style="color:var(--red); font-weight:bold;">₪0</span></div>
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 6px 0;">
+        <div style="display:flex; justify-content:space-between;"><span>🌍 מאזן שנתי גלובלי:</span><span id="sbYearlyNet" style="font-weight:bold;">₪0</span></div>
+    </div>
+
     <div class="sidebar-item active" id="sb-dashboard" onclick="navigate('dashboard')">🏠 דאשבורד ראשי</div>
-    <div class="sidebar-item" id="sb-calendar" onclick="navigate('calendar')">📅 לוח שנה ומחשבון</div>
+    <div class="sidebar-item" id="sb-calendar" onclick="navigate('calendar')">📅 לוח שנה פיננסי</div>
     <div class="sidebar-item" id="sb-executive" onclick="navigate('executive')">📊 דשבורד צפייה בלבד</div>
     <div class="sidebar-item" id="sb-categories" onclick="navigate('categories')">🏷️ קטגוריות וחיפוש</div>
     <div class="sidebar-item" id="sb-ytd" onclick="navigate('ytd')">📉 סיכום שנתי YTD</div>
@@ -374,7 +378,6 @@
     
     <hr style="border-color:var(--border); margin:15px 0;">
     
-    <!-- Collapsible App Settings Accordion Inside Sidebar -->
     <button class="accordion-btn" onclick="toggleAccordion()">
         <span>⚙️ הגדרות אפליקציה</span>
         <span id="accordionArrow">▼</span>
@@ -412,7 +415,7 @@
     </div>
 </div>
 
-<!-- FLOATING MODAL 1: Unified Clean Entry Dialog (No jumpy scrollIntoView) -->
+<!-- FLOATING MODAL 1: Unified Clean Entry Dialog -->
 <div class="modal" id="entryFormModal">
     <div class="modal-content">
         <button class="close-modal" onclick="closeEntryModal()">❌</button>
@@ -445,7 +448,7 @@
     </div>
 </div>
 
-<!-- FLOATING MODAL 2: Excel Interactive Row Manager (Safe Mobile Inspection) -->
+<!-- FLOATING MODAL 2: Excel Interactive Row Manager -->
 <div class="modal" id="rowDetailsModal">
     <div class="modal-content">
         <button class="close-modal" onclick="closeRowModal()">❌</button>
@@ -490,6 +493,7 @@
     let isCloudActive = false;
     let isEditingUser = false;
     let editingEntryId = null;
+    let editingCalcId = null; // Track item being edited in daily calculator
     let selectedCalDateStr = "";
     let selectedRowItemGlobal = null;
 
@@ -530,7 +534,7 @@
         
         const todayStr = new Date().toISOString().split('T')[0];
         selectedCalDateStr = todayStr;
-        document.getElementById('calcSelectedDateLabel').innerText = todayStr;
+        document.getElementById('calcDateInput').value = todayStr;
     }
 
     async function login() {
@@ -639,6 +643,7 @@
         const bar = document.getElementById("sidebarMenu");
         if(bar.classList.contains("open")) toggleSidebar();
         
+        if(viewId === 'dashboard') renderDailyCalcRows();
         if(viewId === 'calendar') renderCalendarView();
         if(viewId === 'categories') { renderCategoriesManagement(); performSearch(); }
         if(viewId === 'ytd') loadYearlySummaryData();
@@ -712,7 +717,7 @@
         
         const body = document.getElementById('rowDetailsBody');
         document.getElementById('rowDetailsTitle').innerText = `🔎 ${item.desc}`;
-        let typeStr = item.type === 'income' ? '📈 הככנסה' : item.type === 'fixed' ? '⏳ הוצאה קבועה' : '📉 הוצאה שוטפת';
+        let typeStr = item.type === 'income' ? '📈 הכנסה' : item.type === 'fixed' ? '⏳ הוצאה קבועה' : '📉 הוצאה שוטפת';
         
         body.innerHTML = `
             <div><b>סכום:</b> <span style="color:${item.type==='income'?'var(--green)':'var(--red)'}; font-weight:bold;">₪${item.amount.toLocaleString()}</span></div>
@@ -832,6 +837,39 @@
         `).join('');
 
         updateChart(inc, vExp, fExp);
+        renderDailyCalcRows();
+        updateSidebarStatsLive(inc, vExp + fExp);
+    }
+
+    function updateSidebarStatsLive(monthInc, monthExp) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        let dInc = 0, dExp = 0;
+        let yInc = 0, yExp = 0;
+        const currentYear = new Date().getFullYear();
+
+        entries.forEach(e => {
+            if(e.date === todayStr) {
+                if(e.type === 'income') dInc += e.amount;
+                else dExp += e.amount;
+            }
+            if(new Date(e.date).getFullYear() === currentYear) {
+                if(e.type === 'income') yInc += e.amount;
+                else yExp += e.amount;
+            }
+        });
+
+        document.getElementById('sbTodayInc').innerText = "₪" + dInc.toLocaleString();
+        document.getElementById('sbTodayExp').innerText = "₪" + dExp.toLocaleString();
+        document.getElementById('sbMonthInc').innerText = "₪" + monthInc.toLocaleString();
+        document.getElementById('sbMonthExp').innerText = "₪" + monthExp.toLocaleString();
+        document.getElementById('sbYearlyNet').innerText = "₪" + (yInc - yExp).toLocaleString();
+        document.getElementById('sbYearlyNet').style.color = (yInc - yExp) >= 0 ? "var(--green)" : "var(--red)";
+    }
+
+    function onCalcDateChange() {
+        selectedCalDateStr = document.getElementById('calcDateInput').value;
+        resetCalcForm();
+        renderDailyCalcRows();
     }
 
     function renderExecutiveDashboard() {
@@ -901,8 +939,10 @@
 
     function selectCalendarDay(dateStr) {
         selectedCalDateStr = dateStr;
-        document.getElementById('calcSelectedDateLabel').innerText = dateStr;
+        document.getElementById('calcDateInput').value = dateStr;
+        resetCalcForm();
         renderCalendarView();
+        renderDailyCalcRows();
     }
 
     function loadSelectedDayData() {
@@ -914,24 +954,57 @@
                 <span style="color:${i.type==='income'?'var(--green)':'var(--red)'}; font-weight:bold;">₪${i.amount}</span>
             </div>
         `).join('');
-        renderDailyCalcRows();
     }
 
+    /* DAILY CALCULATOR ADVANCED INTERACTION LOGIC (EDIT ENGINE INCLUDED) */
     function addDailyCalcItem() {
+        if(currentUser.role !== 'admin') return;
         const desc = document.getElementById('calcDesc').value.trim();
         const amount = parseFloat(document.getElementById('calcAmount').value);
         const type = document.getElementById('calcType').value;
         const note = document.getElementById('calcNote').value.trim();
         if(!desc || !amount) return alert("אנא מלא שדות תקינים");
         
-        dailyCalcEntries.push({ id: Date.now(), date: selectedCalDateStr, desc, amount, type, note });
+        if (editingCalcId) {
+            // Update existing calculator item
+            dailyCalcEntries = dailyCalcEntries.map(e => e.id === editingCalcId ? { ...e, desc, amount, type, note } : e);
+        } else {
+            // Insert brand new row
+            dailyCalcEntries.push({ id: Date.now(), date: selectedCalDateStr, desc, amount, type, note });
+        }
+        
         localStorage.setItem(DAILY_CALC_KEY, JSON.stringify(dailyCalcEntries));
-        document.getElementById('calcDesc').value = ""; document.getElementById('calcAmount').value = ""; document.getElementById('calcNote').value = "";
-        loadSelectedDayData();
+        resetCalcForm();
+        renderDailyCalcRows();
+    }
+
+    function editDailyCalcItem(id) {
+        if(currentUser.role !== 'admin') return;
+        const item = dailyCalcEntries.find(e => e.id === id);
+        if(!item) return;
+        
+        editingCalcId = item.id;
+        document.getElementById('calcDesc').value = item.desc;
+        document.getElementById('calcAmount').value = item.amount;
+        document.getElementById('calcType').value = item.type;
+        document.getElementById('calcNote').value = item.note || "";
+        
+        document.getElementById('calcSubmitBtn').innerText = "עדכן שורה במחשבון ✏️";
+        document.getElementById('calcCancelEditBtn').style.display = "block";
+    }
+
+    function resetCalcForm() {
+        editingCalcId = null;
+        document.getElementById('calcDesc').value = "";
+        document.getElementById('calcAmount').value = "";
+        document.getElementById('calcNote').value = "";
+        document.getElementById('calcSubmitBtn').innerText = "שמור שורה במחשבון";
+        document.getElementById('calcCancelEditBtn').style.display = "none";
     }
 
     function renderDailyCalcRows() {
         const container = document.getElementById('dailyCalcRows');
+        if(!container) return;
         let items = dailyCalcEntries.filter(e => e.date === selectedCalDateStr);
         let inc = items.filter(e => e.type === 'income').reduce((a,b)=>a+b.amount,0);
         let exp = items.filter(e => e.type === 'expense').reduce((a,b)=>a+b.amount,0);
@@ -941,20 +1014,25 @@
         document.getElementById('dailyCalcNetTotal').style.color = net >= 0 ? "var(--green)" : "var(--red)";
         
         container.innerHTML = items.length === 0 ? "<p style='opacity:0.5; margin:0;'>אין פריטי מחשבון ליום זה.</p>" : items.map(i => `
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; padding:4px 0;">
-                <span><b>${i.desc}</b> ${i.note?`<small>(📝 ${i.note})</small>`:''}</span>
-                <span>
-                    <span style="color:${i.type==='income'?'var(--green)':'var(--red)'}; font-weight:bold;">₪${i.amount}</span>
-                    <button onclick="deleteCalcItem(${i.id})" style="width:auto; padding:0 5px; background:none; border:none; color:var(--red);">❌</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.03);">
+                <span><b>${i.desc}</b> ${i.note?`<small style="color:#8b949e;">(📝 ${i.note})</small>`:''}</span>
+                <span style="display:flex; align-items:center; gap:5px;">
+                    <span style="color:${i.type==='income'?'var(--green)':'var(--red)'}; font-weight:bold; margin-left:5px;">₪${i.amount}</span>
+                    ${currentUser.role === 'admin' ? `
+                        <button onclick="editDailyCalcItem(${i.id})" style="width:auto; padding:2px 6px; background:rgba(255,213,64,0.15); border:1px solid var(--orange); color:var(--orange); display:inline; margin:0; font-size:0.75rem; border-radius:5px;">✏️</button>
+                        <button onclick="deleteCalcItem(${i.id})" style="width:auto; padding:2px 6px; background:rgba(255,82,82,0.15); border:1px solid var(--red); color:var(--red); display:inline; margin:0; font-size:0.75rem; border-radius:5px;">❌</button>
+                    ` : ''}
                 </span>
             </div>
         `).join('');
     }
 
     function deleteCalcItem(id) {
+        if(currentUser.role !== 'admin') return;
         dailyCalcEntries = dailyCalcEntries.filter(e => e.id !== id);
         localStorage.setItem(DAILY_CALC_KEY, JSON.stringify(dailyCalcEntries));
-        loadSelectedDayData();
+        if(editingCalcId === id) resetCalcForm();
+        renderDailyCalcRows();
     }
 
     async function injectDailyProfitToBudget() {
@@ -975,8 +1053,8 @@
             entries.push({ id: newId, desc: calcDesc, amount: Math.abs(net), type: net >= 0 ? 'income' : 'variable', date: selectedCalDateStr, category: "כללי", note: "הזרמת לוח שנה" });
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-        alert("הנתונים סונכרנו והוזרמו בהצלחה לענן ולתקציב החולני!");
-        render(); renderCalendarView();
+        alert("הנתונים סונכרנו והוזרמו בהצלחה לתקציב!");
+        render();
     }
 
     function openDrillDown(type) {
@@ -1086,7 +1164,6 @@
             const isNoon = document.getElementById('notifyNoon').checked && time === "14:00";
             const isEvening = document.getElementById('notifyEvening').checked && time === "20:30";
             
-            // Interval active between 15th of current month to 10th of next month
             let inWindow = false;
             if (document.getElementById('notifyWindow').checked && time === "18:00") {
                 if (day >= 15 || day <= 10) inWindow = true;
